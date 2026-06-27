@@ -12,16 +12,18 @@
     --ink: #004643;
     --ink-soft: #3A4F4D;
     --charcoal: #343A40;
-    --paper: #FAF8F4;
-    --paper-dim: #F1EEE6;
-    --line: #E3DFD4;
+    --paper: #FFFFFF;
+    --paper-dim: #F4F4F4;
+    --line: #E5E5E5;
     --paid: #3E8E5A;
     --paid-bg: #E6F1E8;
     --progress: #D9941F;
     --progress-bg: #FBEFD9;
     --unpaid: #C7503E;
     --unpaid-bg: #F8E6E2;
-    --brass: #B08A3E;
+    --brass: #5BA888;
+    --fund-green: #5BA888;
+    --fund-green-fill: #357A5E;
     --white: #FFFFFF;
     --shadow: 0 2px 8px rgba(0,70,67,0.07), 0 1px 2px rgba(0,70,67,0.05);
     --shadow-lg: 0 12px 32px rgba(0,70,67,0.14), 0 4px 8px rgba(0,70,67,0.07);
@@ -75,7 +77,8 @@
   }
   .header.visible { opacity: 1; transform: translateY(0); }
   .header .wordmark { font-size: 19px; }
-  .header .wordmark .fund { color: var(--brass); }
+  .wordmark .play { font-size: 1.15em; }
+  .wordmark .fund { color: var(--fund-green); }
 
   .back-btn {
     position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
@@ -369,15 +372,15 @@
     font-size: 10.5px; font-weight: 700; padding: 4px 9px; border-radius: 20px;
     background: var(--paper-dim); color: var(--ink-soft); white-space: nowrap;
   }
-  .pay-option.featured { border-color: var(--brass); border-left-color: var(--brass); background: linear-gradient(135deg, #FFFDF8, #FBF6E9); }
-  .pay-option.featured .pay-option-tag { background: var(--brass); color: var(--white); }
-  .pay-option.featured .pay-option-icon { background: var(--brass); color: var(--white); }
+  .pay-option.featured { border-color: var(--brass); border-left-color: var(--brass); background: linear-gradient(135deg, #FBFEFC, #EDF7F1); }
+  .pay-option.featured .pay-option-tag { background: var(--fund-green-fill); color: var(--white); }
+  .pay-option.featured .pay-option-icon { background: var(--fund-green-fill); color: var(--white); }
 
   .due-banner {
     background: var(--paper-dim); border-radius: 14px; padding: 16px 18px;
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
   }
-  .due-banner-label { font-size: 12px; color: var(--ink-soft); }
+  .due-banner-label { font-size: 16px; font-weight: 700; color: var(--ink); }
   .due-banner-amt { font-family: 'Anton', sans-serif; font-size: 21px; font-weight: 400; }
 
   /* ---------- Form fields ---------- */
@@ -442,6 +445,146 @@
   .review-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 7px 0; }
   .review-row.total { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 12px; font-weight: 700; font-size: 15px; }
 
+  /* ---------- Athlete cards (parent home / settings) ---------- */
+  .athlete-card {
+    display: flex; align-items: center; gap: 14px;
+    background: var(--white); border: 1px solid var(--line); border-left: 4px solid var(--fund-green);
+    border-radius: 14px; padding: 16px; margin-bottom: 10px; cursor: pointer;
+  }
+  .athlete-card:active { transform: scale(0.98); }
+  .athlete-avatar {
+    width: 42px; height: 42px; border-radius: 50%; background: var(--paper-dim); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; flex-shrink: 0;
+  }
+  .athlete-meta { flex: 1; }
+  .athlete-name { font-weight: 700; font-size: 15px; }
+  .athlete-sub { font-size: 12.5px; color: var(--ink-soft); margin-top: 1px; }
+  .athlete-status-tag {
+    font-size: 10.5px; font-weight: 700; padding: 4px 10px; border-radius: 20px;
+  }
+  .athlete-status-tag.funded { background: var(--paid-bg); color: var(--paid); }
+  .athlete-status-tag.unfunded { background: var(--unpaid-bg); color: var(--unpaid); }
+
+  .athlete-card-static { cursor: default; }
+  .athlete-card-static:active { transform: none; }
+
+  /* ---------- Settings shell ---------- */
+  .settings-row {
+    display: flex; align-items: center; gap: 14px;
+    padding: 14px 4px; border-bottom: 1px solid var(--line);
+    cursor: default; color: var(--ink-soft);
+  }
+  .settings-row-icon {
+    width: 32px; height: 32px; border-radius: 50%; background: var(--paper-dim); color: var(--ink);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .settings-row-icon svg { width: 16px; height: 16px; }
+  .settings-row-label { flex: 1; font-size: 14px; font-weight: 600; color: var(--ink); }
+  .settings-placeholder-note {
+    font-size: 11.5px; color: var(--ink-soft); text-align: center; margin-top: 24px; line-height: 1.5;
+  }
+
+  /* ---------- Payment history timeline ---------- */
+  .history-item {
+    display: flex; align-items: center; gap: 12px; padding: 13px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-icon {
+    width: 34px; height: 34px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .history-icon.paid { background: var(--paid-bg); color: var(--paid); }
+  .history-icon.upcoming { background: var(--paper-dim); color: var(--ink-soft); }
+  .history-icon svg { width: 16px; height: 16px; }
+  .history-label { flex: 1; }
+  .history-title { font-weight: 600; font-size: 14px; }
+  .history-date { font-size: 12px; color: var(--ink-soft); margin-top: 1px; }
+  .history-amt { font-weight: 700; font-size: 14px; }
+  .history-section-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase;
+    color: var(--ink-soft); margin: 20px 0 8px;
+  }
+  .history-section-label:first-child { margin-top: 4px; }
+
+  /* ---------- Sezzle partner handoff screens ---------- */
+  :root {
+    --sezzle-purple: #5A3FA0;
+    --sezzle-purple-dark: #382757;
+    --sezzle-purple-light: #F1EDFB;
+    --sezzle-purple-border: #DCD3F0;
+  }
+  .sezzle-screen { background: var(--white); }
+  .sezzle-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 4px;
+  }
+  .sezzle-modal-header .sezzle-wordmark {
+    display: flex; align-items: center; gap: 7px;
+    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 15px; color: var(--sezzle-purple);
+  }
+  .sezzle-modal-header .sezzle-wordmark svg { width: 18px; height: 18px; }
+  .sezzle-close {
+    width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--paper-dim);
+    display: flex; align-items: center; justify-content: center; cursor: pointer; color: var(--ink-soft);
+  }
+  .sezzle-close svg { width: 14px; height: 14px; }
+  .sezzle-order-total {
+    font-size: 13px; color: var(--ink-soft); margin: 14px 0 18px;
+  }
+  .sezzle-order-total b { color: var(--ink); font-weight: 700; }
+
+  .sezzle-option {
+    background: var(--white); border: 1.5px solid var(--line); border-radius: 12px;
+    padding: 14px 16px; margin-bottom: 10px; cursor: pointer;
+    display: flex; align-items: flex-start; gap: 12px;
+  }
+  .sezzle-option.selected { border-color: var(--sezzle-purple); background: var(--sezzle-purple-light); }
+  .sezzle-option-radio {
+    width: 19px; height: 19px; border-radius: 50%; border: 1.5px solid var(--line); flex-shrink: 0; margin-top: 2px;
+  }
+  .sezzle-option.selected .sezzle-option-radio {
+    border-color: var(--sezzle-purple); background: var(--sezzle-purple);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .sezzle-option.selected .sezzle-option-radio::after {
+    content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--white);
+  }
+  .sezzle-option-body { flex: 1; }
+  .sezzle-option-top { display: flex; justify-content: space-between; font-weight: 700; font-size: 14.5px; }
+  .sezzle-option-sub { font-size: 12px; color: var(--ink-soft); margin-top: 3px; line-height: 1.4; }
+
+  .sezzle-btn {
+    width: 100%; padding: 15px; border-radius: 24px; border: none;
+    background: var(--sezzle-purple); color: var(--white);
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer;
+  }
+  .sezzle-btn:active { opacity: 0.9; }
+  .sezzle-footer {
+    text-align: center; font-size: 10.5px; color: var(--ink-soft); margin-top: 16px; line-height: 1.5;
+  }
+  .sezzle-footer b { color: var(--sezzle-purple-dark); }
+
+  .sezzle-timeline-item {
+    display: flex; align-items: center; gap: 12px; padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .sezzle-timeline-item:last-child { border-bottom: none; }
+  .sezzle-timeline-icon {
+    width: 30px; height: 30px; border-radius: 50%; background: var(--sezzle-purple-light);
+    color: var(--sezzle-purple); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .sezzle-timeline-icon svg { width: 14px; height: 14px; }
+  .sezzle-timeline-label { flex: 1; font-size: 13.5px; font-weight: 600; }
+  .sezzle-timeline-date { font-size: 11.5px; color: var(--ink-soft); margin-top: 1px; font-weight: 400; }
+  .sezzle-timeline-amt { font-weight: 700; font-size: 14px; }
+
+  .sezzle-consent {
+    font-size: 10.5px; color: var(--ink-soft); line-height: 1.5; margin: 16px 0;
+  }
+  .sezzle-consent a { color: var(--sezzle-purple); text-decoration: underline; }
+
   /* ---------- Confirmation ---------- */
   .confirm-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
   .confirm-icon {
@@ -458,7 +601,7 @@
 <body>
 
 <div id="splash">
-  <div class="wordmark">Play<span class="fund" style="color:#B08A3E;">Fund</span></div>
+  <div class="wordmark"><span class="play">Play</span><span class="fund">Fund</span></div>
 </div>
 
 <div id="app">
@@ -467,7 +610,7 @@
     <button class="back-btn" id="backBtn" onclick="goBack()" style="display:none;">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
     </button>
-    <div class="wordmark">Play<span class="fund">Fund</span></div>
+    <div class="wordmark"><span class="play">Play</span><span class="fund">Fund</span></div>
   </div>
 
   <!-- SCREEN: home / role picker -->
@@ -521,8 +664,13 @@
   <!-- SCREEN: club overview (rollup + team picker) -->
   <div class="screen" id="screen-club-overview">
     <div class="eyebrow">Sports Club</div>
-    <h1 class="title" id="overviewClubName">Club name</h1>
-    <p class="subtitle" id="overviewLocation">City, ST</p>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:0;">
+      <h1 class="title" id="overviewClubName" style="margin-bottom:0;">Club name</h1>
+      <button onclick="goToClubSettings()" style="background:none; border:none; padding:6px 0; cursor:pointer; color:var(--ink-soft);" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09c0 .67.39 1.27 1 1.51.59.24 1.27.14 1.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06c-.47.47-.57 1.15-.33 1.82.24.61.84 1 1.51 1H21a2 2 0 110 4h-.09c-.67 0-1.27.39-1.51 1z"/></svg>
+      </button>
+    </div>
+    <p class="subtitle" id="overviewLocation" style="margin-top:6px;">City, ST</p>
 
     <div class="overview-rollup">
       <div class="overview-rollup-stat">
@@ -629,11 +777,16 @@
 
   <!-- SCREEN: parent home -->
   <!-- SCREEN: parent code entry -->
+  <!-- SCREEN: add athlete (parent code entry, reusable for first + additional athletes) -->
   <div class="screen" id="screen-parent-code">
     <div class="eyebrow">Parent</div>
-    <h1 class="title">Enter your club code</h1>
-    <p class="subtitle">Your club shares this code with families when registration opens. It links your account to the right team and season.</p>
+    <h1 class="title" id="addAthleteTitle">Add an athlete</h1>
+    <p class="subtitle">Enter your child's name and the club code their club shared with you. Each athlete has their own code, even if siblings play at the same club.</p>
 
+    <div class="field" style="margin-bottom:14px;">
+      <label>Athlete's name</label>
+      <input type="text" id="athleteNameInput" placeholder="e.g. Jordan Smith" autocomplete="off">
+    </div>
     <div class="field" style="margin-bottom:6px;">
       <label>Club code</label>
       <input type="text" id="codeInput" placeholder="e.g. WOLVES1" autocomplete="off" autocapitalize="characters" oninput="this.value=this.value.toUpperCase(); clearCodeError();">
@@ -647,13 +800,26 @@
     </p>
   </div>
 
-  <!-- SCREEN: parent home -->
+  <!-- SCREEN: parent home (athlete list / dashboard) -->
   <div class="screen" id="screen-parent-home">
     <div class="eyebrow">Parent</div>
     <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
-      <h1 class="title" style="margin-bottom:0;">Season dues</h1>
-      <button onclick="switchClub()" style="background:none; border:none; padding:6px 0; font-size:12.5px; font-weight:700; color:var(--brass); cursor:pointer; font-family:'Inter',sans-serif;">Switch club</button>
+      <h1 class="title" style="margin-bottom:0;">Your athletes</h1>
+      <button onclick="goToParentSettings()" style="background:none; border:none; padding:6px 0; cursor:pointer; color:var(--ink-soft);" aria-label="Settings">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="20" height="20"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 11-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 110-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 114 0v.09c0 .67.39 1.27 1 1.51.59.24 1.27.14 1.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06c-.47.47-.57 1.15-.33 1.82.24.61.84 1 1.51 1H21a2 2 0 110 4h-.09c-.67 0-1.27.39-1.51 1z"/></svg>
+      </button>
     </div>
+    <p class="subtitle">Select an athlete to manage their season payment.</p>
+
+    <div id="athleteList"></div>
+
+    <button class="btn btn-secondary" onclick="showScreen('parent-code')" style="margin-top:6px;">+ Add another athlete</button>
+  </div>
+
+  <!-- SCREEN: athlete detail (payment options for one athlete) -->
+  <div class="screen" id="screen-athlete-detail">
+    <div class="eyebrow">Parent</div>
+    <h1 class="title" id="athleteDetailTitle" style="margin-bottom:0;">Season dues</h1>
     <p class="subtitle">Choose how you'd like to handle this season's payment.</p>
 
     <div class="due-banner">
@@ -673,7 +839,6 @@
             <div class="pay-option-title">Pay now</div>
             <div class="pay-option-desc">One-time payment by card or bank transfer. Nothing financed.</div>
           </div>
-          <div class="pay-option-tag">No fee</div>
         </div>
       </div>
     </div>
@@ -692,6 +857,8 @@
         </div>
       </div>
     </div>
+
+    <button class="btn btn-secondary" onclick="openPaymentHistory()" style="margin-top:4px;">View payment history</button>
   </div>
 
   <!-- SCREEN: pay now method -->
@@ -756,77 +923,83 @@
     </div>
 
     <div class="footer-spacer"></div>
-    <button class="btn btn-primary" onclick="showScreen('confirm-now')">Pay <span id="paynowBtnAmt">$1,000</span></button>
+    <button class="btn btn-primary" onclick="recordAthletePayment('full'); showScreen('confirm-now')">Pay <span id="paynowBtnAmt">$1,000</span></button>
   </div>
 
-  <!-- SCREEN: terms -->
-  <div class="screen" id="screen-terms">
-    <div class="eyebrow">Pay in full via PlayFund</div>
-    <h1 class="title">Choose your terms</h1>
-    <p class="subtitle" id="termsSubtitle">Hawks Travel Basketball receives $1,000 today. You repay over time — no fee from PlayFund.</p>
-
-    <div class="term-card" data-weeks="4" onclick="selectTerm(this, 4)">
-      <div class="term-left">
-        <div class="term-radio"></div>
-        <div>
-          <div class="term-weeks">4 weeks</div>
-          <div class="term-cadence">4 weekly payments</div>
-        </div>
+  <!-- SCREEN: terms (Sezzle handoff — payment schedule selection) -->
+  <div class="screen sezzle-screen" id="screen-terms">
+    <div class="sezzle-modal-header">
+      <div class="sezzle-wordmark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+        sezzle
       </div>
-      <div class="term-right">
-        <div class="term-amt">$250</div>
-        <div class="term-amt-label">per week</div>
+      <button class="sezzle-close" onclick="goBack()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <h1 class="title" style="font-size:21px;">Choose a payment schedule</h1>
+    <p class="sezzle-order-total" id="termsSubtitle">Your order total is <b>$1,000.00</b>.</p>
+
+    <div class="sezzle-option" data-weeks="4" onclick="selectTerm(this, 4)">
+      <div class="sezzle-option-radio"></div>
+      <div class="sezzle-option-body">
+        <div class="sezzle-option-top"><span>4 weekly payments</span><span class="term-amt-display">$250.00/week</span></div>
+        <div class="sezzle-option-sub">First payment today, then every week for 4 weeks.</div>
       </div>
     </div>
 
-    <div class="term-card selected" data-weeks="8" onclick="selectTerm(this, 8)">
-      <div class="term-left">
-        <div class="term-radio"></div>
-        <div>
-          <div class="term-weeks">8 weeks</div>
-          <div class="term-cadence">8 weekly payments</div>
-        </div>
-      </div>
-      <div class="term-right">
-        <div class="term-amt">$125</div>
-        <div class="term-amt-label">per week</div>
+    <div class="sezzle-option selected" data-weeks="8" onclick="selectTerm(this, 8)">
+      <div class="sezzle-option-radio"></div>
+      <div class="sezzle-option-body">
+        <div class="sezzle-option-top"><span>8 weekly payments</span><span class="term-amt-display">$125.00/week</span></div>
+        <div class="sezzle-option-sub">First payment today, then every week for 8 weeks.</div>
       </div>
     </div>
 
-    <div class="term-card" data-weeks="12" onclick="selectTerm(this, 12)">
-      <div class="term-left">
-        <div class="term-radio"></div>
-        <div>
-          <div class="term-weeks">12 weeks</div>
-          <div class="term-cadence">12 weekly payments</div>
-        </div>
-      </div>
-      <div class="term-right">
-        <div class="term-amt">$83.33</div>
-        <div class="term-amt-label">per week</div>
+    <div class="sezzle-option" data-weeks="12" onclick="selectTerm(this, 12)">
+      <div class="sezzle-option-radio"></div>
+      <div class="sezzle-option-body">
+        <div class="sezzle-option-top"><span>12 weekly payments</span><span class="term-amt-display">$83.33/week</span></div>
+        <div class="sezzle-option-sub">First payment today, then every week for 12 weeks.</div>
       </div>
     </div>
 
-    <div class="review-box">
-      <div class="review-row"><span>Season dues</span><span id="termDuesLine">$1,000.00</span></div>
-      <div class="review-row"><span>PlayFund fee</span><span>$0.00</span></div>
-      <div class="review-row total"><span>Total repayment</span><span id="termTotal">$1,000.00</span></div>
-    </div>
-    <p style="font-size:11px; color:var(--ink-soft); line-height:1.5; margin:12px 2px 0;">
+    <p style="font-size:11px; color:var(--ink-soft); line-height:1.5; margin:14px 2px 18px;">
       On-time installments carry no interest or fees. Illustrative only — a missed or late payment would accrue interest at a 20% APR until brought current.
     </p>
 
     <div class="footer-spacer"></div>
-    <button class="btn btn-primary" onclick="showScreen('terms-method')">Continue</button>
+    <button class="sezzle-btn" onclick="showScreen('terms-method')">Continue</button>
+    <div class="sezzle-footer">&copy; 2026 Sezzle Inc. &middot; <b>Financing provided by Sezzle</b> on behalf of PlayFund</div>
   </div>
 
-  <!-- SCREEN: terms payment method -->
-  <div class="screen" id="screen-terms-method">
-    <div class="eyebrow">Pay in full via PlayFund</div>
-    <h1 class="title">How should we collect payments?</h1>
-    <p class="subtitle" id="termsMethodSub">Your card will be charged $125 every week for 8 weeks, starting today.</p>
+  <!-- SCREEN: terms payment method (Sezzle handoff — complete your order) -->
+  <div class="screen sezzle-screen" id="screen-terms-method">
+    <div class="sezzle-modal-header">
+      <div class="sezzle-wordmark">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
+        sezzle
+      </div>
+      <button class="sezzle-close" onclick="goBack()" aria-label="Close">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <h1 class="title" style="font-size:21px;">Complete your order</h1>
+    <p class="sezzle-order-total" id="termsMethodSub">Review your payment schedule for your season dues at Hawks Travel Basketball.</p>
 
-    <div class="field">
+    <div id="sezzleTimeline">
+      <div class="sezzle-timeline-item">
+        <div class="sezzle-timeline-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        </div>
+        <div style="flex:1;">
+          <div class="sezzle-timeline-label">Down payment due today</div>
+        </div>
+        <div class="sezzle-timeline-amt">$125.00</div>
+      </div>
+    </div>
+
+    <div class="field" style="margin-top:18px;">
       <label>Card number</label>
       <input type="text" placeholder="4242 4242 4242 4242" inputmode="numeric">
     </div>
@@ -845,8 +1018,11 @@
       <input type="text" placeholder="Jamie Parent">
     </div>
 
+    <p class="sezzle-consent">By selecting "Complete order" I agree to the <a href="#" onclick="return false;">Sezzle User Agreement</a> and authorize Sezzle to charge my payment method on file in the amounts and on the dates listed above.</p>
+
     <div class="footer-spacer"></div>
-    <button class="btn btn-primary" onclick="showScreen('confirm-terms')">Confirm payment plan</button>
+    <button class="sezzle-btn" onclick="recordAthletePayment('bnpl', state.selectedTermWeeks); showScreen('confirm-terms')">Complete order</button>
+    <div class="sezzle-footer">&copy; 2026 Sezzle Inc. &middot; <b>Financing provided by Sezzle</b> on behalf of PlayFund</div>
   </div>
 
   <!-- SCREEN: confirm now -->
@@ -858,7 +1034,7 @@
       <h1 class="title">You're all set</h1>
       <p>Your $1,000 payment to Hawks Travel Basketball has been received in full.</p>
     </div>
-    <button class="btn btn-secondary" onclick="goHome()">Done</button>
+    <button class="btn btn-secondary" onclick="goToAthleteList()">Done</button>
   </div>
 
   <!-- SCREEN: confirm terms -->
@@ -869,8 +1045,76 @@
       </div>
       <h1 class="title">Plan confirmed</h1>
       <p id="confirmTermsSub">Hawks Travel Basketball has been paid $1,000 in full. You're set up for 8 weekly payments of $125.</p>
+      <p style="font-size:11.5px; color:var(--ink-soft); margin-top:14px;">Payment plan serviced by Sezzle.</p>
     </div>
-    <button class="btn btn-secondary" onclick="goHome()">Done</button>
+    <button class="btn btn-secondary" onclick="goToAthleteList()">Done</button>
+  </div>
+
+  <!-- SCREEN: payment history (per athlete) -->
+  <div class="screen" id="screen-payment-history">
+    <div class="eyebrow">Parent</div>
+    <h1 class="title" id="historyTitle" style="margin-bottom:0;">Payment history</h1>
+    <p class="subtitle" id="historySubtitle">Jordan Smith &middot; Hawks Travel Basketball</p>
+    <div id="historyList"></div>
+  </div>
+
+  <!-- SCREEN: parent settings (shell) -->
+  <div class="screen" id="screen-parent-settings">
+    <div class="eyebrow">Parent</div>
+    <h1 class="title">Settings</h1>
+    <p class="subtitle">Manage your account, athletes, and payment methods.</p>
+
+    <div class="roster-section-label">Linked athletes</div>
+    <div id="settingsAthleteList" style="margin-bottom: 24px;"></div>
+
+    <div class="roster-section-label">Account</div>
+    <div class="settings-row">
+      <div class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="settings-row-label">Profile &amp; contact info</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></div>
+      <div class="settings-row-label">Payment methods</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+      <div class="settings-row-label">Notification preferences</div>
+    </div>
+
+    <p class="settings-placeholder-note">This is a shell for illustrative purposes — settings aren't functional in this mockup.</p>
+  </div>
+
+  <!-- SCREEN: club settings (shell) -->
+  <div class="screen" id="screen-club-settings">
+    <div class="eyebrow">Sports Club</div>
+    <h1 class="title">Settings</h1>
+    <p class="subtitle" id="clubSettingsSubtitle">Manage your club profile, payout details, and teams.</p>
+
+    <div class="roster-section-label">Payouts</div>
+    <div class="settings-row">
+      <div class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>
+      <div class="settings-row-label">Bank account on file</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></div>
+      <div class="settings-row-label">Payout history</div>
+    </div>
+
+    <div class="roster-section-label" style="margin-top:20px;">Club profile</div>
+    <div class="settings-row">
+      <div class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M2 12h20M12 2c2.5 2.7 4 6.4 4 10s-1.5 7.3-4 10M12 2c-2.5 2.7-4 6.4-4 10s1.5 7.3 4 10"/></svg></div>
+      <div class="settings-row-label">Club info &amp; primary contact</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+      <div class="settings-row-label">Manage teams &amp; rosters</div>
+    </div>
+    <div class="settings-row">
+      <div class="settings-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/></svg></div>
+      <div class="settings-row-label">Notification preferences</div>
+    </div>
+
+    <p class="settings-placeholder-note">This is a shell for illustrative purposes — settings aren't functional in this mockup.</p>
   </div>
 
 </div>
@@ -911,7 +1155,7 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     };
   }
 
-  var state = { club: null, team: null, selectedState: null, history: [] };
+  var state = { club: null, team: null, selectedState: null, history: [], athletes: [], activeAthleteId: null };
 
   // ---------- splash ----------
   window.addEventListener('load', function(){
@@ -952,6 +1196,14 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
     document.getElementById('screen-home').classList.add('active');
     document.getElementById('backBtn').style.display = 'none';
+  }
+
+  function goToAthleteList(){
+    screenOrder = [];
+    renderAthleteList();
+    document.querySelectorAll('.screen').forEach(function(s){ s.classList.remove('active'); });
+    document.getElementById('screen-parent-home').classList.add('active');
+    document.getElementById('backBtn').style.display = 'flex';
   }
 
   // ---------- club select ----------
@@ -1184,26 +1436,40 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
-  // ---------- parent club code flow ----------
-  var CODE_STORAGE_KEY = 'playfund_parent_club_code';
+  // ---------- parent: multi-athlete flow ----------
+  var ATHLETES_STORAGE_KEY = 'playfund_parent_athletes';
 
   function findClubByCode(code){
     var norm = code.trim().toUpperCase();
     return clubs.find(function(c){ return c.code === norm; }) || null;
   }
 
+  // Deterministically assign an athlete to one of the club's teams, so the same
+  // athlete name + club always resolves to the same team across sessions.
+  function pickTeamForAthlete(club, athleteName){
+    var hash = 0;
+    for(var i = 0; i < athleteName.length; i++) hash = (hash * 31 + athleteName.charCodeAt(i)) >>> 0;
+    return club.teams[hash % club.teams.length];
+  }
+
+  function loadAthletes(){
+    var raw = null;
+    try { raw = localStorage.getItem(ATHLETES_STORAGE_KEY); } catch(e){}
+    if(!raw) return [];
+    try { return JSON.parse(raw); } catch(e){ return []; }
+  }
+  function saveAthletes(athletes){
+    try { localStorage.setItem(ATHLETES_STORAGE_KEY, JSON.stringify(athletes)); } catch(e){}
+  }
+
   function enterParentMode(){
-    var savedCode = null;
-    try { savedCode = localStorage.getItem(CODE_STORAGE_KEY); } catch(e){}
-    if(savedCode){
-      var match = findClubByCode(savedCode);
-      if(match){
-        loadParentHome(match);
-        showScreen('parent-home');
-        return;
-      }
+    state.athletes = loadAthletes();
+    if(state.athletes.length === 0){
+      showScreen('parent-code');
+      return;
     }
-    showScreen('parent-code');
+    renderAthleteList();
+    showScreen('parent-home');
   }
 
   function clearCodeError(){
@@ -1211,29 +1477,190 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
   }
 
   function submitCode(){
+    var name = document.getElementById('athleteNameInput').value.trim();
     var raw = document.getElementById('codeInput').value;
-    var match = findClubByCode(raw);
-    if(!match){
+    if(!name){
+      document.getElementById('codeError').textContent = "Enter the athlete's name first.";
+      return;
+    }
+    var club = findClubByCode(raw);
+    if(!club){
       document.getElementById('codeError').textContent = "We couldn't find a club with that code. Double-check with your club, or try a demo code below.";
       return;
     }
-    try { localStorage.setItem(CODE_STORAGE_KEY, match.code); } catch(e){}
-    loadParentHome(match);
+    var team = pickTeamForAthlete(club, name);
+    state.athletes = loadAthletes();
+    var athlete = {
+      id: 'athlete_' + Date.now() + '_' + Math.floor(Math.random() * 1000),
+      name: name,
+      clubId: club.id,
+      teamId: team.id,
+      paymentStatus: null,   // null = not yet chosen; 'full' or 'bnpl' once chosen
+      termWeeks: null,
+      history: null
+    };
+    state.athletes.push(athlete);
+    saveAthletes(state.athletes);
+
+    document.getElementById('athleteNameInput').value = '';
+    document.getElementById('codeInput').value = '';
+    clearCodeError();
+    renderAthleteList();
     showScreen('parent-home');
   }
 
-  function switchClub(){
-    try { localStorage.removeItem(CODE_STORAGE_KEY); } catch(e){}
-    document.getElementById('codeInput').value = '';
-    clearCodeError();
-    showScreen('parent-code');
+  function getAthleteClubTeam(athlete){
+    var club = clubs.find(function(c){ return c.id === athlete.clubId; });
+    var team = club ? club.teams.find(function(t){ return t.id === athlete.teamId; }) : null;
+    return { club: club, team: team };
   }
 
-  function loadParentHome(c){
-    state.parentClub = c;
-    document.getElementById('parentClubLabel').textContent = c.name + ' \u00b7 Fall season';
-    document.getElementById('parentDuesAmt').textContent = '$' + c.dues.toLocaleString();
+  function athleteInitials(name){
+    var parts = name.trim().split(/\s+/);
+    return ((parts[0] || '')[0] || '') + ((parts[1] || '')[0] || '');
+  }
+
+  function renderAthleteList(){
+    var listEl = document.getElementById('athleteList');
+    listEl.innerHTML = '';
+    state.athletes.forEach(function(athlete){
+      var ct = getAthleteClubTeam(athlete);
+      if(!ct.club || !ct.team) return;
+      var funded = athlete.paymentStatus !== null;
+      var card = document.createElement('div');
+      card.className = 'athlete-card';
+      card.innerHTML =
+        '<div class="athlete-avatar">' + athleteInitials(athlete.name) + '</div>' +
+        '<div class="athlete-meta">' +
+          '<div class="athlete-name">' + athlete.name + '</div>' +
+          '<div class="athlete-sub">' + ct.club.name + ' \u2014 ' + ct.team.name + '</div>' +
+        '</div>' +
+        '<div class="athlete-status-tag ' + (funded ? 'funded' : 'unfunded') + '">' + (funded ? 'Funded' : 'Action needed') + '</div>';
+      card.addEventListener('click', function(){ openAthleteDetail(athlete.id); });
+      listEl.appendChild(card);
+    });
+  }
+
+  function openAthleteDetail(athleteId){
+    var athlete = state.athletes.find(function(a){ return a.id === athleteId; });
+    if(!athlete) return;
+    state.activeAthleteId = athleteId;
+    var ct = getAthleteClubTeam(athlete);
+    document.getElementById('athleteDetailTitle').textContent = athlete.name + "'s season dues";
+    document.getElementById('parentClubLabel').textContent = ct.club.name + ' \u2014 ' + ct.team.name;
+    document.getElementById('parentDuesAmt').textContent = '$' + ct.team.dues.toLocaleString();
+    // Shallow-copy the team so we can safely set a display name without mutating
+    // the shared clubs/teams dataset (ct.team is a direct reference into it).
+    state.parentClub = Object.assign({}, ct.team, { name: ct.club.name + ' \u2014 ' + ct.team.name });
     updateFeeBreakdowns();
+    showScreen('athlete-detail');
+  }
+
+  function recordAthletePayment(method, weeks){
+    var athlete = state.athletes.find(function(a){ return a.id === state.activeAthleteId; });
+    if(!athlete) return;
+    athlete.paymentStatus = method; // 'full' or 'bnpl'
+    athlete.termWeeks = weeks || null;
+    athlete.history = buildAthleteHistory(athlete);
+    saveAthletes(state.athletes);
+    renderAthleteList();
+  }
+
+  // Builds a plausible payment history for an athlete: a single dated receipt for
+  // Paid in Full, or a full installment schedule (past payments marked paid, future
+  // ones upcoming) for BNPL, based on today's date.
+  function buildAthleteHistory(athlete){
+    var ct = getAthleteClubTeam(athlete);
+    var dues = ct.team.dues;
+    var today = new Date();
+    if(athlete.paymentStatus === 'full'){
+      return [{ label: 'Season dues paid in full', date: today, amount: dues, status: 'paid' }];
+    }
+    var weeks = athlete.termWeeks || 8;
+    var perWeek = dues / weeks;
+    var items = [];
+    for(var i = 0; i < weeks; i++){
+      var d = new Date(today);
+      d.setDate(d.getDate() + i * 7);
+      items.push({
+        label: i === 0 ? 'Down payment' : 'Payment ' + (i + 1),
+        date: d,
+        amount: perWeek,
+        status: i === 0 ? 'paid' : 'upcoming'
+      });
+    }
+    return items;
+  }
+
+  function openPaymentHistory(){
+    var athlete = state.athletes.find(function(a){ return a.id === state.activeAthleteId; });
+    if(!athlete) return;
+    if(!athlete.history){
+      // No payment method chosen yet - nothing to show. Build an empty-state message inline.
+      var ct = getAthleteClubTeam(athlete);
+      document.getElementById('historyTitle').textContent = 'Payment history';
+      document.getElementById('historySubtitle').textContent = athlete.name + ' \u00b7 ' + ct.club.name + ' \u2014 ' + ct.team.name;
+      document.getElementById('historyList').innerHTML =
+        '<p style="font-size:13px; color:var(--ink-soft); text-align:center; margin-top:32px;">No payments yet. Choose a payment method to see your schedule here.</p>';
+      showScreen('payment-history');
+      return;
+    }
+    var ct = getAthleteClubTeam(athlete);
+    document.getElementById('historyTitle').textContent = 'Payment history';
+    document.getElementById('historySubtitle').textContent = athlete.name + ' \u00b7 ' + ct.club.name + ' \u2014 ' + ct.team.name;
+
+    var paidItems = athlete.history.filter(function(h){ return h.status === 'paid'; });
+    var upcomingItems = athlete.history.filter(function(h){ return h.status === 'upcoming'; });
+
+    function renderItem(item){
+      var dateStr = item.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      var icon = item.status === 'paid'
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>';
+      return '<div class="history-item">' +
+        '<div class="history-icon ' + item.status + '">' + icon + '</div>' +
+        '<div class="history-label"><div class="history-title">' + item.label + '</div><div class="history-date">' + dateStr + '</div></div>' +
+        '<div class="history-amt">' + fmtUSD(item.amount) + '</div></div>';
+    }
+
+    var html = '';
+    if(paidItems.length){
+      html += '<div class="history-section-label">Paid</div>';
+      paidItems.forEach(function(item){ html += renderItem(item); });
+    }
+    if(upcomingItems.length){
+      html += '<div class="history-section-label">Upcoming</div>';
+      upcomingItems.forEach(function(item){ html += renderItem(item); });
+    }
+    document.getElementById('historyList').innerHTML = html;
+    showScreen('payment-history');
+  }
+
+  // ---------- settings shells ----------
+  function goToParentSettings(){
+    state.athletes = state.athletes || loadAthletes();
+    var listEl = document.getElementById('settingsAthleteList');
+    listEl.innerHTML = '';
+    state.athletes.forEach(function(athlete){
+      var ct = getAthleteClubTeam(athlete);
+      if(!ct.club || !ct.team) return;
+      var card = document.createElement('div');
+      card.className = 'athlete-card athlete-card-static';
+      card.innerHTML =
+        '<div class="athlete-avatar">' + athleteInitials(athlete.name) + '</div>' +
+        '<div class="athlete-meta">' +
+          '<div class="athlete-name">' + athlete.name + '</div>' +
+          '<div class="athlete-sub">' + ct.club.name + ' \u2014 ' + ct.team.name + '</div>' +
+        '</div>';
+      listEl.appendChild(card);
+    });
+    showScreen('parent-settings');
+  }
+
+  function goToClubSettings(){
+    var c = state.club;
+    if(c) document.getElementById('clubSettingsSubtitle').textContent = 'Manage payout details and teams for ' + c.name + '.';
+    showScreen('club-settings');
   }
 
   // ---------- pay now method toggle ----------
@@ -1260,32 +1687,53 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     syncPaynowButton();
     document.getElementById('paynowSub').textContent = '$' + dues.toLocaleString() + ' due in full today.';
 
-    // also refresh term review box, since dues may have changed
-    document.getElementById('termDuesLine').textContent = fmtUSD(dues);
-    document.getElementById('termTotal').textContent = fmtUSD(dues);
-    document.getElementById('termsSubtitle').textContent =
-      (state.parentClub ? state.parentClub.name : 'Hawks Travel Basketball') +
-      ' receives $' + dues.toLocaleString() + ' today. You repay over time — no fee from PlayFund.';
+    document.getElementById('termsSubtitle').innerHTML = 'Your order total is <b>' + fmtUSD(dues) + '</b>.';
     rebuildTermCards(dues);
+    // re-select whichever term is currently marked selected (defaults to 8 weeks) to refresh the timeline
+    var selectedCard = document.querySelector('.sezzle-option.selected') || document.querySelector('.sezzle-option[data-weeks="8"]');
+    if(selectedCard) selectTerm(selectedCard, parseInt(selectedCard.dataset.weeks, 10));
   }
 
-  // ---------- term selection ----------
+  // ---------- term selection (Sezzle schedule cards) ----------
   function rebuildTermCards(dues){
     [4, 8, 12].forEach(function(weeks){
       var perWeek = dues / weeks;
-      var card = document.querySelector('.term-card[data-weeks="' + weeks + '"]');
-      if(card) card.querySelector('.term-amt').textContent = fmtUSD(perWeek);
+      var card = document.querySelector('.sezzle-option[data-weeks="' + weeks + '"]');
+      if(card) card.querySelector('.term-amt-display').textContent = fmtUSD(perWeek) + '/week';
     });
   }
   function selectTerm(el, weeks){
-    document.querySelectorAll('.term-card').forEach(function(t){ t.classList.remove('selected'); });
+    document.querySelectorAll('.sezzle-option').forEach(function(t){ t.classList.remove('selected'); });
     el.classList.add('selected');
     var dues = (state.parentClub && state.parentClub.dues) || 1000;
-    var perWeek = fmtUSD(dues / weeks);
+    var perWeekAmt = dues / weeks;
+    var perWeek = fmtUSD(perWeekAmt);
     var clubName = (state.parentClub && state.parentClub.name) || 'Hawks Travel Basketball';
-    document.getElementById('termTotal').textContent = fmtUSD(dues);
+    state.selectedTermWeeks = weeks;
+
     document.getElementById('termsMethodSub').textContent =
-      'Your card will be charged ' + perWeek + ' every week for ' + weeks + ' weeks, starting today.';
+      'Review your payment schedule for your season dues at ' + clubName + '.';
+
+    // Build the itemized timeline: first payment due today, then one row per remaining weekly payment
+    var timelineEl = document.getElementById('sezzleTimeline');
+    if(timelineEl){
+      var rows = '<div class="sezzle-timeline-item">' +
+        '<div class="sezzle-timeline-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg></div>' +
+        '<div style="flex:1;"><div class="sezzle-timeline-label">Down payment due today</div></div>' +
+        '<div class="sezzle-timeline-amt">' + perWeek + '</div></div>';
+      var today = new Date();
+      for(var i = 1; i < weeks; i++){
+        var d = new Date(today);
+        d.setDate(d.getDate() + i * 7);
+        var dateStr = d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        rows += '<div class="sezzle-timeline-item">' +
+          '<div class="sezzle-timeline-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>' +
+          '<div style="flex:1;"><div class="sezzle-timeline-label">Payment ' + (i + 1) + '</div><div class="sezzle-timeline-date">' + dateStr + '</div></div>' +
+          '<div class="sezzle-timeline-amt">' + perWeek + '</div></div>';
+      }
+      timelineEl.innerHTML = rows;
+    }
+
     document.getElementById('confirmTermsSub').textContent =
       clubName + ' has been paid ' + fmtUSD(dues) + ' in full. You\'re set up for ' + weeks + ' weekly payments of ' + perWeek + '.';
   }
