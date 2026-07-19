@@ -378,10 +378,27 @@
 
   .due-banner {
     background: var(--paper-dim); border-radius: 14px; padding: 16px 18px;
-    display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;
+    margin-bottom: 16px;
   }
+  .due-banner-top { display: flex; justify-content: space-between; align-items: flex-start; }
   .due-banner-label { font-size: 16px; font-weight: 700; color: var(--ink); }
-  .due-banner-amt { font-family: 'Anton', sans-serif; font-size: 21px; font-weight: 400; }
+  .due-banner-amt { font-family: 'Anton', sans-serif; font-size: 21px; font-weight: 400; flex-shrink: 0; margin-left: 12px; }
+
+  /* breakdown inside due-banner */
+  .breakdown-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 10px 0 0 0; margin-top: 10px;
+    border-top: 1px solid var(--line);
+    background: none; width: 100%; border-radius: 0;
+    border-left: none; border-right: none; border-bottom: none;
+    font-family: 'Inter', sans-serif;
+  }
+  .breakdown-panel {
+    display: none; margin-top: 6px;
+    border-radius: 0;
+    padding: 0; margin-bottom: 0;
+  }
+  .breakdown-panel.open { display: block; }
 
   /* ---------- Form fields ---------- */
   .field { margin-bottom: 14px; }
@@ -444,6 +461,51 @@
   }
   .review-row { display: flex; justify-content: space-between; font-size: 13.5px; padding: 7px 0; }
   .review-row.total { border-top: 1px solid var(--line); margin-top: 6px; padding-top: 12px; font-weight: 700; font-size: 15px; }
+
+  /* ---------- Cost breakdown (collapsible, athlete detail) ---------- */
+  .breakdown-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 16px; background: var(--paper-dim); border-radius: 10px;
+    margin-bottom: 16px; cursor: pointer; border: none; width: 100%;
+    font-family: 'Inter', sans-serif;
+  }
+  .breakdown-toggle:active { opacity: 0.85; }
+  .breakdown-toggle-label {
+    font-size: 13px; font-weight: 600; color: var(--ink-soft);
+    display: flex; align-items: center; gap: 7px;
+  }
+  .breakdown-toggle-label svg { width: 14px; height: 14px; color: var(--ink-soft); }
+  .breakdown-chevron {
+    width: 18px; height: 18px; color: var(--ink-soft);
+    transition: transform 0.2s ease;
+  }
+  .breakdown-chevron.open { transform: rotate(180deg); }
+  .breakdown-panel {
+    display: none; background: var(--paper-dim); border-radius: 10px;
+    padding: 4px 16px; margin-top: -12px; margin-bottom: 16px;
+  }
+  .breakdown-panel.open { display: block; }
+  .breakdown-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 13.5px;
+  }
+  .breakdown-row:last-child { border-bottom: none; }
+  .breakdown-row-left { display: flex; align-items: center; gap: 9px; }
+  .breakdown-row-icon {
+    width: 26px; height: 26px; border-radius: 50%; background: var(--white);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .breakdown-row-icon svg { width: 13px; height: 13px; color: var(--ink-soft); }
+  .breakdown-row-label { font-weight: 500; color: var(--ink); }
+  .breakdown-row-tournament { border-radius: 6px; }
+  .breakdown-row-tournament:hover { background: rgba(0,70,67,0.04); }
+  .tournament-list { display: none; padding: 0 0 6px 42px; }
+  .tournament-list.open { display: block; }
+  .tournament-item { padding: 7px 0; border-bottom: 1px solid var(--line); }
+  .tournament-item:last-child { border-bottom: none; }
+  .tournament-name { font-size: 13px; font-weight: 600; color: var(--ink); }
+  .tournament-meta { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
+  .breakdown-row-amt { font-weight: 700; font-size: 13.5px; color: var(--ink); }
 
   /* ---------- Athlete cards (parent home / settings) ---------- */
   .athlete-card {
@@ -508,13 +570,7 @@
   }
   .history-section-label:first-child { margin-top: 4px; }
 
-  /* ---------- Sezzle partner handoff screens ---------- */
-  :root {
-    --sezzle-purple: #5A3FA0;
-    --sezzle-purple-dark: #382757;
-    --sezzle-purple-light: #F1EDFB;
-    --sezzle-purple-border: #DCD3F0;
-  }
+  /* ---------- BNPL payment screens (PlayFund branded) ---------- */
   .sezzle-screen { background: var(--white); }
   .sezzle-modal-header {
     display: flex; align-items: center; justify-content: space-between;
@@ -522,8 +578,10 @@
   }
   .sezzle-modal-header .sezzle-wordmark {
     display: flex; align-items: center; gap: 7px;
-    font-family: 'Inter', sans-serif; font-weight: 800; font-size: 15px; color: var(--sezzle-purple);
+    font-family: 'Anton', sans-serif; font-weight: 400; font-size: 17px;
+    text-transform: uppercase; letter-spacing: 0.01em; color: var(--ink);
   }
+  .sezzle-modal-header .sezzle-wordmark .wordmark-fund { color: var(--fund-green); }
   .sezzle-modal-header .sezzle-wordmark svg { width: 18px; height: 18px; }
   .sezzle-close {
     width: 28px; height: 28px; border-radius: 50%; border: none; background: var(--paper-dim);
@@ -540,12 +598,12 @@
     padding: 14px 16px; margin-bottom: 10px; cursor: pointer;
     display: flex; align-items: flex-start; gap: 12px;
   }
-  .sezzle-option.selected { border-color: var(--sezzle-purple); background: var(--sezzle-purple-light); }
+  .sezzle-option.selected { border-color: var(--ink); background: var(--paper-dim); }
   .sezzle-option-radio {
     width: 19px; height: 19px; border-radius: 50%; border: 1.5px solid var(--line); flex-shrink: 0; margin-top: 2px;
   }
   .sezzle-option.selected .sezzle-option-radio {
-    border-color: var(--sezzle-purple); background: var(--sezzle-purple);
+    border-color: var(--ink); background: var(--ink);
     display: flex; align-items: center; justify-content: center;
   }
   .sezzle-option.selected .sezzle-option-radio::after {
@@ -556,15 +614,14 @@
   .sezzle-option-sub { font-size: 12px; color: var(--ink-soft); margin-top: 3px; line-height: 1.4; }
 
   .sezzle-btn {
-    width: 100%; padding: 15px; border-radius: 24px; border: none;
-    background: var(--sezzle-purple); color: var(--white);
+    width: 100%; padding: 15px; border-radius: 12px; border: none;
+    background: var(--ink); color: var(--white);
     font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px; cursor: pointer;
   }
   .sezzle-btn:active { opacity: 0.9; }
   .sezzle-footer {
     text-align: center; font-size: 10.5px; color: var(--ink-soft); margin-top: 16px; line-height: 1.5;
   }
-  .sezzle-footer b { color: var(--sezzle-purple-dark); }
 
   .sezzle-timeline-item {
     display: flex; align-items: center; gap: 12px; padding: 12px 0;
@@ -572,8 +629,8 @@
   }
   .sezzle-timeline-item:last-child { border-bottom: none; }
   .sezzle-timeline-icon {
-    width: 30px; height: 30px; border-radius: 50%; background: var(--sezzle-purple-light);
-    color: var(--sezzle-purple); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    width: 30px; height: 30px; border-radius: 50%; background: var(--paid-bg);
+    color: var(--paid); display: flex; align-items: center; justify-content: center; flex-shrink: 0;
   }
   .sezzle-timeline-icon svg { width: 14px; height: 14px; }
   .sezzle-timeline-label { flex: 1; font-size: 13.5px; font-weight: 600; }
@@ -583,7 +640,73 @@
   .sezzle-consent {
     font-size: 10.5px; color: var(--ink-soft); line-height: 1.5; margin: 16px 0;
   }
-  .sezzle-consent a { color: var(--sezzle-purple); text-decoration: underline; }
+  .sezzle-consent a { color: var(--fund-green); text-decoration: underline; }
+
+  /* ---------- Stripe payment interstitial ---------- */
+  .stripe-modal-backdrop {
+    position: fixed; inset: 0; z-index: 2000;
+    background: var(--white);
+    display: flex; flex-direction: column;
+    animation: fadeInBackdrop 0.2s ease;
+  }
+  @keyframes fadeInBackdrop { from { opacity: 0; } to { opacity: 1; } }
+  .stripe-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 16px 10px;
+    background: var(--white);
+    border-bottom: 1px solid var(--line);
+    flex-shrink: 0;
+  }
+  .stripe-modal-title {
+    font-size: 14px; font-weight: 700; color: var(--ink);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .stripe-modal-title svg { width: 18px; height: 18px; }
+  .stripe-modal-close {
+    width: 30px; height: 30px; border-radius: 50%;
+    border: none; background: var(--paper-dim); cursor: pointer;
+    display: flex; align-items: center; justify-content: center; color: var(--ink-soft);
+  }
+  .stripe-modal-close svg { width: 14px; height: 14px; }
+  .stripe-interstitial-body {
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 32px 24px; text-align: center; gap: 0;
+  }
+  .stripe-interstitial-icon {
+    width: 72px; height: 72px; border-radius: 50%;
+    background: #F0EFFF; display: flex; align-items: center;
+    justify-content: center; margin-bottom: 20px;
+  }
+  .stripe-interstitial-icon svg { width: 34px; height: 34px; }
+  .stripe-interstitial-title {
+    font-family: 'Anton', sans-serif; font-size: 22px; font-weight: 400;
+    text-transform: uppercase; color: var(--ink); margin-bottom: 10px;
+  }
+  .stripe-interstitial-desc {
+    font-size: 14px; color: var(--ink-soft); line-height: 1.55;
+    max-width: 280px; margin-bottom: 28px;
+  }
+  .stripe-interstitial-desc b { color: var(--ink); font-weight: 700; }
+  .stripe-pay-btn {
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    width: 100%; max-width: 320px; padding: 16px 24px;
+    background: #635BFF; color: #fff; border: none; border-radius: 10px;
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 15px;
+    cursor: pointer; text-decoration: none; margin-bottom: 14px;
+  }
+  .stripe-pay-btn svg { width: 18px; height: 18px; }
+  .stripe-return-btn {
+    background: none; border: none; color: var(--ink-soft); font-family: 'Inter', sans-serif;
+    font-size: 13px; cursor: pointer; padding: 8px; text-decoration: underline;
+  }
+  .stripe-modal-footer {
+    background: var(--white); padding: 10px 16px 20px;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 11.5px; color: var(--ink-soft); flex-shrink: 0;
+    border-top: 1px solid var(--line);
+  }
+  .stripe-modal-footer svg { width: 14px; height: 14px; }
 
   /* ---------- Confirmation ---------- */
   .confirm-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
@@ -617,7 +740,7 @@
   <div class="screen" id="screen-home">
     <div class="role-prompt">I am a&hellip;</div>
     <div class="role-row">
-      <div class="role-card" onclick="showScreen('club-select')">
+      <div class="role-card" onclick="enterClubMode()">
         <div class="role-icon">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M2 12h20M12 2c2.5 2.7 4 6.4 4 10s-1.5 7.3-4 10M12 2c-2.5 2.7-4 6.4-4 10s1.5 7.3 4 10"/></svg>
         </div>
@@ -637,28 +760,26 @@
   <!-- SCREEN: club select -->
   <div class="screen" id="screen-club-select">
     <div class="eyebrow">Sports Club</div>
-    <h1 class="title">Find your club</h1>
-    <p class="subtitle">Select your state, then search for your registered club.</p>
+    <h1 class="title">Club login</h1>
+    <p class="subtitle">Enter your club code and team PIN. Your club director shares these when setting up PlayFund.</p>
 
-    <div class="field" style="margin-bottom:16px;">
-      <label>State</label>
-      <select id="stateSelect" onchange="onStateChange()">
-        <option value="" selected disabled>Choose a state&hellip;</option>
-      </select>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Club code</label>
+      <input type="text" id="clubCodeInput" placeholder="e.g. BBALL1" autocomplete="off"
+        autocapitalize="characters" oninput="this.value=this.value.toUpperCase(); clearClubError();">
     </div>
+    <div class="field" style="margin-bottom:6px;">
+      <label>Team PIN</label>
+      <input type="text" id="clubPinInput" placeholder="4-digit PIN" inputmode="numeric" maxlength="4"
+        oninput="clearClubError();">
+    </div>
+    <p id="clubLoginError" style="font-size:12.5px; color:var(--unpaid); min-height:16px; margin:4px 2px 18px;"></p>
 
-    <div id="searchSection" style="display:none;">
-      <div class="search-wrap">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-        <input type="text" class="search-input" id="clubSearch" placeholder="Search by club name&hellip;" autocomplete="off" oninput="filterClubs()">
-      </div>
-      <div class="club-list" id="clubList"></div>
-      <div class="no-results" id="noResults" style="display:none;">Type a club name to search.</div>
-    </div>
-
-    <div class="sticky-footer">
-      <button class="btn btn-primary" id="clubContinueBtn" disabled onclick="openClubOverview()">Continue</button>
-    </div>
+    <div class="footer-spacer"></div>
+    <button class="btn btn-primary" onclick="submitClubLogin()">Sign in</button>
+    <p style="font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:16px;">
+      Demo: try code <b style="color:var(--ink);">BBALL1</b> with PIN <b style="color:var(--ink);">1234</b>, or any 4-digit PIN.
+    </p>
   </div>
 
   <!-- SCREEN: club overview (rollup + team picker) -->
@@ -689,6 +810,11 @@
 
     <div class="roster-section-label">Teams</div>
     <div id="teamList"></div>
+
+    <div style="display:flex; gap:10px; margin-top:8px;">
+      <button class="btn btn-secondary" onclick="switchClub()" style="flex:1; font-size:13px;">Switch club</button>
+      <button class="btn btn-secondary" onclick="addTeam()" style="flex:1; font-size:13px;">+ Add team</button>
+    </div>
   </div>
 
   <!-- SCREEN: roster -->
@@ -789,14 +915,14 @@
     </div>
     <div class="field" style="margin-bottom:6px;">
       <label>Club code</label>
-      <input type="text" id="codeInput" placeholder="e.g. WOLVES1" autocomplete="off" autocapitalize="characters" oninput="this.value=this.value.toUpperCase(); clearCodeError();">
+      <input type="text" id="codeInput" placeholder="e.g. BBALL1" autocomplete="off" autocapitalize="characters" oninput="this.value=this.value.toUpperCase(); clearCodeError();">
     </div>
     <p id="codeError" style="font-size:12.5px; color:var(--unpaid); min-height:16px; margin:4px 2px 18px;"></p>
 
     <div class="footer-spacer"></div>
     <button class="btn btn-primary" onclick="submitCode()">Continue</button>
     <p style="font-size:11.5px; color:var(--ink-soft); text-align:center; margin-top:16px;">
-      Demo codes: try <b style="color:var(--ink);">WOLVES1</b>, <b style="color:var(--ink);">HAWKS1</b>, or any club name + 1 (e.g. a club called "City Eagles" → <b style="color:var(--ink);">EAGLES1</b>)
+      Demo code: <b style="color:var(--ink);">BBALL1</b>
     </p>
   </div>
 
@@ -823,10 +949,22 @@
     <p class="subtitle">Choose how you'd like to handle this season's payment.</p>
 
     <div class="due-banner">
-      <div>
+      <div class="due-banner-top">
         <div class="due-banner-label" id="parentClubLabel">Hawks Travel Basketball &middot; Fall season</div>
+        <div class="due-banner-amt" id="parentDuesAmt">$1,000</div>
       </div>
-      <div class="due-banner-amt" id="parentDuesAmt">$1,000</div>
+
+      <!-- Collapsible cost breakdown — lives inside the banner bubble -->
+      <button class="breakdown-toggle" onclick="toggleBreakdown()" id="breakdownToggle">
+        <span class="breakdown-toggle-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
+          See what's included
+        </span>
+        <svg class="breakdown-chevron" id="breakdownChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="breakdown-panel" id="breakdownPanel">
+        <!-- populated by JS -->
+      </div>
     </div>
 
     <div class="pay-option" onclick="showScreen('paynow')">
@@ -879,24 +1017,6 @@
     </div>
 
     <div id="cardFields">
-      <div class="field">
-        <label>Card number</label>
-        <input type="text" placeholder="4242 4242 4242 4242" inputmode="numeric">
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Expiry</label>
-          <input type="text" placeholder="MM / YY">
-        </div>
-        <div class="field">
-          <label>CVC</label>
-          <input type="text" placeholder="123" inputmode="numeric">
-        </div>
-      </div>
-      <div class="field">
-        <label>Name on card</label>
-        <input type="text" placeholder="Jamie Parent">
-      </div>
       <div class="fee-breakdown">
         <div class="fee-row"><span>Processing fee</span><span>3.0%</span></div>
         <div class="fee-row fee-total"><span>Total charged today</span><b id="cardFeeTotal">$1,030.00</b></div>
@@ -904,34 +1024,25 @@
     </div>
 
     <div id="achFields" style="display:none;">
-      <div class="field">
-        <label>Routing number</label>
-        <input type="text" placeholder="021000021" inputmode="numeric">
-      </div>
-      <div class="field">
-        <label>Account number</label>
-        <input type="text" placeholder="000123456789" inputmode="numeric">
-      </div>
-      <div class="field">
-        <label>Account holder name</label>
-        <input type="text" placeholder="Jamie Parent">
-      </div>
       <div class="fee-breakdown">
         <div class="fee-row"><span>Processing fee</span><span>1.0%</span></div>
         <div class="fee-row fee-total"><span>Total charged today</span><b id="achFeeTotal">$1,010.00</b></div>
       </div>
     </div>
 
+    <p style="font-size:12px; color:var(--ink-soft); line-height:1.5; margin:14px 2px 0;">
+      You'll enter your payment details securely on the next screen, powered by Stripe.
+    </p>
+
     <div class="footer-spacer"></div>
-    <button class="btn btn-primary" onclick="recordAthletePayment('full'); showScreen('confirm-now')">Pay <span id="paynowBtnAmt">$1,000</span></button>
+    <button class="btn btn-primary" onclick="initiatePayNow()">Pay <span id="paynowBtnAmt">$1,000</span></button>
   </div>
 
-  <!-- SCREEN: terms (Sezzle handoff — payment schedule selection) -->
+  <!-- SCREEN: terms — payment schedule selection -->
   <div class="screen sezzle-screen" id="screen-terms">
     <div class="sezzle-modal-header">
       <div class="sezzle-wordmark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
-        sezzle
+        <span>Play<span class="wordmark-fund">Fund</span></span>
       </div>
       <button class="sezzle-close" onclick="goBack()" aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -951,7 +1062,7 @@
     <div class="sezzle-option selected" data-weeks="8" onclick="selectTerm(this, 8)">
       <div class="sezzle-option-radio"></div>
       <div class="sezzle-option-body">
-        <div class="sezzle-option-top"><span>8 weekly payments</span><span class="term-amt-display">$125.00/week</span></div>
+        <div class="sezzle-option-top"><span>8 weekly payments</span><span class="term-amt-display">$118.75/week</span></div>
         <div class="sezzle-option-sub">First payment today, then every week for 8 weeks.</div>
       </div>
     </div>
@@ -959,33 +1070,32 @@
     <div class="sezzle-option" data-weeks="12" onclick="selectTerm(this, 12)">
       <div class="sezzle-option-radio"></div>
       <div class="sezzle-option-body">
-        <div class="sezzle-option-top"><span>12 weekly payments</span><span class="term-amt-display">$83.33/week</span></div>
+        <div class="sezzle-option-top"><span>12 weekly payments</span><span class="term-amt-display">$79.17/week</span></div>
         <div class="sezzle-option-sub">First payment today, then every week for 12 weeks.</div>
       </div>
     </div>
 
     <p style="font-size:11px; color:var(--ink-soft); line-height:1.5; margin:14px 2px 18px;">
-      On-time installments carry no interest or fees. Illustrative only — a missed or late payment would accrue interest at a 20% APR until brought current.
+      On-time installments carry no interest or fees. A missed or late payment would accrue interest at a 20% APR until brought current.
     </p>
 
     <div class="footer-spacer"></div>
-    <button class="sezzle-btn" onclick="showScreen('terms-method')">Continue</button>
-    <div class="sezzle-footer">&copy; 2026 Sezzle Inc. &middot; <b>Financing provided by Sezzle</b> on behalf of PlayFund</div>
+    <button class="sezzle-btn" onclick="initiateBnpl()">Continue to payment</button>
+    <p class="sezzle-footer">Payments processed securely by Stripe</p>
   </div>
 
-  <!-- SCREEN: terms payment method (Sezzle handoff — complete your order) -->
+  <!-- SCREEN: terms payment method — confirm schedule + complete order -->
   <div class="screen sezzle-screen" id="screen-terms-method">
     <div class="sezzle-modal-header">
       <div class="sezzle-wordmark">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M9 12l2 2 4-4"/></svg>
-        sezzle
+        <span>Play<span class="wordmark-fund">Fund</span></span>
       </div>
       <button class="sezzle-close" onclick="goBack()" aria-label="Close">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
     <h1 class="title" style="font-size:21px;">Complete your order</h1>
-    <p class="sezzle-order-total" id="termsMethodSub">Review your payment schedule for your season dues at Hawks Travel Basketball.</p>
+    <p class="sezzle-order-total" id="termsMethodSub">Review your payment schedule for your season dues at Basketball Club.</p>
 
     <div id="sezzleTimeline">
       <div class="sezzle-timeline-item">
@@ -999,30 +1109,15 @@
       </div>
     </div>
 
-    <div class="field" style="margin-top:18px;">
-      <label>Card number</label>
-      <input type="text" placeholder="4242 4242 4242 4242" inputmode="numeric">
-    </div>
-    <div class="field-row">
-      <div class="field">
-        <label>Expiry</label>
-        <input type="text" placeholder="MM / YY">
-      </div>
-      <div class="field">
-        <label>CVC</label>
-        <input type="text" placeholder="123" inputmode="numeric">
-      </div>
-    </div>
-    <div class="field">
-      <label>Name on card</label>
-      <input type="text" placeholder="Jamie Parent">
-    </div>
+    <p style="font-size:12px; color:var(--ink-soft); line-height:1.5; margin:16px 0;">
+      You'll enter your payment details securely on the next screen, powered by Stripe.
+    </p>
 
-    <p class="sezzle-consent">By selecting "Complete order" I agree to the <a href="#" onclick="return false;">Sezzle User Agreement</a> and authorize Sezzle to charge my payment method on file in the amounts and on the dates listed above.</p>
+    <p class="sezzle-consent">By selecting "Complete order" I agree to the <a href="#" onclick="return false;">PlayFund Payment Agreement</a> and authorize PlayFund to charge my payment method in the amounts and on the dates listed above.</p>
 
     <div class="footer-spacer"></div>
-    <button class="sezzle-btn" onclick="recordAthletePayment('bnpl', state.selectedTermWeeks); showScreen('confirm-terms')">Complete order</button>
-    <div class="sezzle-footer">&copy; 2026 Sezzle Inc. &middot; <b>Financing provided by Sezzle</b> on behalf of PlayFund</div>
+    <button class="sezzle-btn" onclick="initiateBnpl()">Complete order</button>
+    <p class="sezzle-footer">Payments processed securely by Stripe</p>
   </div>
 
   <!-- SCREEN: confirm now -->
@@ -1045,7 +1140,7 @@
       </div>
       <h1 class="title">Plan confirmed</h1>
       <p id="confirmTermsSub">Hawks Travel Basketball has been paid $1,000 in full. You're set up for 8 weekly payments of $125.</p>
-      <p style="font-size:11.5px; color:var(--ink-soft); margin-top:14px;">Payment plan serviced by Sezzle.</p>
+      <p style="font-size:11.5px; color:var(--ink-soft); margin-top:14px;">Payment plan managed by PlayFund.</p>
     </div>
     <button class="btn btn-secondary" onclick="goToAthleteList()">Done</button>
   </div>
@@ -1119,10 +1214,47 @@
 
 </div>
 
+<!-- Stripe payment interstitial — opens Stripe checkout in a new tab -->
+<div id="stripeModal" style="display:none;" role="dialog" aria-label="Stripe payment">
+  <div class="stripe-modal-backdrop">
+    <div class="stripe-modal-header">
+      <div class="stripe-modal-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        <span id="stripeModalTitle">Complete payment</span>
+      </div>
+      <button class="stripe-modal-close" onclick="closeStripeModal(false)" aria-label="Cancel payment">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div class="stripe-interstitial-body">
+      <div class="stripe-interstitial-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#635BFF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      </div>
+      <div class="stripe-interstitial-title" id="stripeInterstitialTitle">Pay now</div>
+      <p class="stripe-interstitial-desc" id="stripeInterstitialDesc">
+        You'll complete payment on <b>Stripe's secure checkout page</b>. Tap the button below — when you're done, come back here to see your confirmation.
+      </p>
+      <a class="stripe-pay-btn" id="stripePayBtn" href="#" target="_blank" rel="noopener" onclick="onStripePayTapped()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+        Open Stripe checkout
+      </a>
+      <button class="stripe-return-btn" id="stripeReturnBtn" style="display:none;" onclick="closeStripeModal(true)">
+        ✓ I've completed payment — show my confirmation
+      </button>
+    </div>
+
+    <div class="stripe-modal-footer">
+      <svg viewBox="0 0 24 24" fill="#635BFF" stroke="none"><path d="M13.976 9.15c-2.172-.806-3.356-1.426-3.356-2.409 0-.831.683-1.305 1.901-1.305 2.227 0 4.515.858 6.09 1.631l.89-5.494C18.252.975 15.697 0 12.165 0 9.667 0 7.589.654 6.104 1.872 4.56 3.147 3.757 4.992 3.757 7.218c0 4.039 2.467 5.76 6.476 7.219 2.585.92 3.445 1.574 3.445 2.583 0 .98-.84 1.545-2.354 1.545-1.875 0-4.965-.921-6.99-2.109l-.9 5.555C5.175 22.99 8.385 24 11.714 24c2.641 0 4.843-.624 6.328-1.813 1.664-1.31 2.564-3.346 2.564-5.732 0-4.103-2.539-5.897-6.63-7.305z"/></svg>
+      Powered by Stripe &middot; SSL encrypted
+    </div>
+  </div>
+</div>
+
 <script>
   // ---------- data ----------
-  var clubs = [{"name":"Birmingham Wolves","sport":"Basketball","city":"Birmingham, AL","state":"Alabama","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":0,"badge":"W","code":"WOLVES1","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Huntsville Hawks","sport":"Soccer","city":"Huntsville, AL","state":"Alabama","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":1,"badge":"H","code":"HAWKS1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Birmingham Rebels","sport":"Baseball","city":"Birmingham, AL","state":"Alabama","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":2,"badge":"R","code":"REBELS1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":800,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Huntsville Storm","sport":"Volleyball","city":"Huntsville, AL","state":"Alabama","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":3,"badge":"S","code":"STORM1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Birmingham Rapids","sport":"Lacrosse","city":"Birmingham, AL","state":"Alabama","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":4,"badge":"R","code":"RAPIDS1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Anchorage Hawks","sport":"Basketball","city":"Anchorage, AK","state":"Alaska","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":5,"badge":"H","code":"HAWKS2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Juneau Eagles","sport":"Soccer","city":"Juneau, AK","state":"Alaska","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":6,"badge":"E","code":"EAGLES1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1250,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"14U Elite","age":"14U","dues":1300,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Anchorage Comets","sport":"Baseball","city":"Anchorage, AK","state":"Alaska","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":7,"badge":"C","code":"COMETS1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Juneau Storm","sport":"Volleyball","city":"Juneau, AK","state":"Alaska","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":8,"badge":"S","code":"STORM2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1250,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1350,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Anchorage Outlaws","sport":"Lacrosse","city":"Anchorage, AK","state":"Alaska","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":9,"badge":"O","code":"OUTLAWS1","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Phoenix Hawks","sport":"Basketball","city":"Phoenix, AZ","state":"Arizona","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":10,"badge":"H","code":"HAWKS3","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Tucson Panthers","sport":"Soccer","city":"Tucson, AZ","state":"Arizona","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":11,"badge":"P","code":"PANTHERS1","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Phoenix Stallions","sport":"Baseball","city":"Phoenix, AZ","state":"Arizona","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":12,"badge":"S","code":"STALLIONS1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Tucson Royals","sport":"Volleyball","city":"Tucson, AZ","state":"Arizona","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":13,"badge":"R","code":"ROYALS1","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Phoenix Rebels","sport":"Lacrosse","city":"Phoenix, AZ","state":"Arizona","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":14,"badge":"R","code":"REBELS2","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"18U Select","age":"18U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Little Rock Bobcats","sport":"Basketball","city":"Little Rock, AR","state":"Arkansas","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":15,"badge":"B","code":"BOBCATS1","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Fayetteville Wolves","sport":"Soccer","city":"Fayetteville, AR","state":"Arkansas","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":16,"badge":"W","code":"WOLVES2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1350,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1350,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Little Rock Knights","sport":"Baseball","city":"Little Rock, AR","state":"Arkansas","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":17,"badge":"K","code":"KNIGHTS1","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Fayetteville Lightning","sport":"Volleyball","city":"Fayetteville, AR","state":"Arkansas","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":18,"badge":"L","code":"LIGHTNING1","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Little Rock Rebels","sport":"Lacrosse","city":"Little Rock, AR","state":"Arkansas","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":19,"badge":"R","code":"REBELS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Sacramento Lightning","sport":"Basketball","city":"Sacramento, CA","state":"California","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":20,"badge":"L","code":"LIGHTNING2","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"San Diego Bulldogs","sport":"Soccer","city":"San Diego, CA","state":"California","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":21,"badge":"B","code":"BULLDOGS1","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Sacramento Knights","sport":"Baseball","city":"Sacramento, CA","state":"California","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":22,"badge":"K","code":"KNIGHTS2","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"16U Elite","age":"16U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"San Diego Comets","sport":"Volleyball","city":"San Diego, CA","state":"California","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":23,"badge":"C","code":"COMETS2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"12U Select","age":"12U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"16U Elite","age":"16U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Sacramento Eagles","sport":"Lacrosse","city":"Sacramento, CA","state":"California","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":24,"badge":"E","code":"EAGLES2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Denver Wolves","sport":"Basketball","city":"Denver, CO","state":"Colorado","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":25,"badge":"W","code":"WOLVES3","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"18U Select","age":"18U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Boulder Bobcats","sport":"Soccer","city":"Boulder, CO","state":"Colorado","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":26,"badge":"B","code":"BOBCATS2","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Denver Rebels","sport":"Baseball","city":"Denver, CO","state":"Colorado","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":27,"badge":"R","code":"REBELS4","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Boulder Thunder","sport":"Volleyball","city":"Boulder, CO","state":"Colorado","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":28,"badge":"T","code":"THUNDER1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Denver Knights","sport":"Lacrosse","city":"Denver, CO","state":"Colorado","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":29,"badge":"K","code":"KNIGHTS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Hartford Eagles","sport":"Basketball","city":"Hartford, CT","state":"Connecticut","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":30,"badge":"E","code":"EAGLES3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Stamford Panthers","sport":"Soccer","city":"Stamford, CT","state":"Connecticut","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":31,"badge":"P","code":"PANTHERS2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Hartford Lightning","sport":"Baseball","city":"Hartford, CT","state":"Connecticut","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":32,"badge":"L","code":"LIGHTNING3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Stamford Storm","sport":"Volleyball","city":"Stamford, CT","state":"Connecticut","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":33,"badge":"S","code":"STORM3","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Hartford Crusaders","sport":"Lacrosse","city":"Hartford, CT","state":"Connecticut","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":34,"badge":"C","code":"CRUSADERS1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Wilmington Titans","sport":"Basketball","city":"Wilmington, DE","state":"Delaware","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":35,"badge":"T","code":"TITANS1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Dover Storm","sport":"Soccer","city":"Dover, DE","state":"Delaware","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":36,"badge":"S","code":"STORM4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":800,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"16U Elite","age":"16U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Wilmington Outlaws","sport":"Baseball","city":"Wilmington, DE","state":"Delaware","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":37,"badge":"O","code":"OUTLAWS2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"14U Elite","age":"14U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Dover Royals","sport":"Volleyball","city":"Dover, DE","state":"Delaware","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":38,"badge":"R","code":"ROYALS2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Wilmington Bobcats","sport":"Lacrosse","city":"Wilmington, DE","state":"Delaware","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":39,"badge":"B","code":"BOBCATS3","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Tampa Vipers","sport":"Basketball","city":"Tampa, FL","state":"Florida","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":40,"badge":"V","code":"VIPERS1","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Orlando Bobcats","sport":"Soccer","city":"Orlando, FL","state":"Florida","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":41,"badge":"B","code":"BOBCATS4","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"16U Elite","age":"16U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Tampa Thunder","sport":"Baseball","city":"Tampa, FL","state":"Florida","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":42,"badge":"T","code":"THUNDER2","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Orlando Falcons","sport":"Volleyball","city":"Orlando, FL","state":"Florida","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":43,"badge":"F","code":"FALCONS1","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"16U Elite","age":"16U","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Tampa Rebels","sport":"Lacrosse","city":"Tampa, FL","state":"Florida","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":44,"badge":"R","code":"REBELS5","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Atlanta Knights","sport":"Basketball","city":"Atlanta, GA","state":"Georgia","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":45,"badge":"K","code":"KNIGHTS4","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Savannah Storm","sport":"Soccer","city":"Savannah, GA","state":"Georgia","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":46,"badge":"S","code":"STORM5","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":800,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Atlanta Falcons","sport":"Baseball","city":"Atlanta, GA","state":"Georgia","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":47,"badge":"F","code":"FALCONS2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Savannah Rapids","sport":"Volleyball","city":"Savannah, GA","state":"Georgia","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":48,"badge":"R","code":"RAPIDS2","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Atlanta Vipers","sport":"Lacrosse","city":"Atlanta, GA","state":"Georgia","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":49,"badge":"V","code":"VIPERS2","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"18U Select","age":"18U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Honolulu Stallions","sport":"Basketball","city":"Honolulu, HI","state":"Hawaii","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":50,"badge":"S","code":"STALLIONS2","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Hilo Eagles","sport":"Soccer","city":"Hilo, HI","state":"Hawaii","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":51,"badge":"E","code":"EAGLES4","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"16U Elite","age":"16U","dues":750,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Honolulu Bobcats","sport":"Baseball","city":"Honolulu, HI","state":"Hawaii","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":52,"badge":"B","code":"BOBCATS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":800,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"16U Elite","age":"16U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Hilo Lightning","sport":"Volleyball","city":"Hilo, HI","state":"Hawaii","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":53,"badge":"L","code":"LIGHTNING4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Honolulu Thunder","sport":"Lacrosse","city":"Honolulu, HI","state":"Hawaii","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":54,"badge":"T","code":"THUNDER3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Boise Wolves","sport":"Basketball","city":"Boise, ID","state":"Idaho","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":55,"badge":"W","code":"WOLVES4","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Meridian Bulldogs","sport":"Soccer","city":"Meridian, ID","state":"Idaho","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":56,"badge":"B","code":"BULLDOGS2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Boise Stallions","sport":"Baseball","city":"Boise, ID","state":"Idaho","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":57,"badge":"S","code":"STALLIONS3","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Meridian Panthers","sport":"Volleyball","city":"Meridian, ID","state":"Idaho","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":58,"badge":"P","code":"PANTHERS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Boise Thunder","sport":"Lacrosse","city":"Boise, ID","state":"Idaho","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":59,"badge":"T","code":"THUNDER4","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Chicago Rapids","sport":"Basketball","city":"Chicago, IL","state":"Illinois","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":60,"badge":"R","code":"RAPIDS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Naperville Comets","sport":"Soccer","city":"Naperville, IL","state":"Illinois","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":61,"badge":"C","code":"COMETS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Chicago Falcons","sport":"Baseball","city":"Chicago, IL","state":"Illinois","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":62,"badge":"F","code":"FALCONS3","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":1250,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1300,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Naperville Knights","sport":"Volleyball","city":"Naperville, IL","state":"Illinois","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":63,"badge":"K","code":"KNIGHTS5","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"16U Elite","age":"16U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Chicago Panthers","sport":"Lacrosse","city":"Chicago, IL","state":"Illinois","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":64,"badge":"P","code":"PANTHERS4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Indianapolis Knights","sport":"Basketball","city":"Indianapolis, IN","state":"Indiana","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":65,"badge":"K","code":"KNIGHTS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Fort Wayne Bulldogs","sport":"Soccer","city":"Fort Wayne, IN","state":"Indiana","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":66,"badge":"B","code":"BULLDOGS3","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":800,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Indianapolis Storm","sport":"Baseball","city":"Indianapolis, IN","state":"Indiana","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":67,"badge":"S","code":"STORM6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"14U Elite","age":"14U","dues":1350,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Fort Wayne Titans","sport":"Volleyball","city":"Fort Wayne, IN","state":"Indiana","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":68,"badge":"T","code":"TITANS2","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Indianapolis Lightning","sport":"Lacrosse","city":"Indianapolis, IN","state":"Indiana","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":69,"badge":"L","code":"LIGHTNING5","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Des Moines Falcons","sport":"Basketball","city":"Des Moines, IA","state":"Iowa","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":70,"badge":"F","code":"FALCONS4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Cedar Rapids Vipers","sport":"Soccer","city":"Cedar Rapids, IA","state":"Iowa","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":71,"badge":"V","code":"VIPERS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"16U Elite","age":"16U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Des Moines Lightning","sport":"Baseball","city":"Des Moines, IA","state":"Iowa","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":72,"badge":"L","code":"LIGHTNING6","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Cedar Rapids Panthers","sport":"Volleyball","city":"Cedar Rapids, IA","state":"Iowa","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":73,"badge":"P","code":"PANTHERS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Des Moines Rebels","sport":"Lacrosse","city":"Des Moines, IA","state":"Iowa","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":74,"badge":"R","code":"REBELS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Wichita Knights","sport":"Basketball","city":"Wichita, KS","state":"Kansas","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":75,"badge":"K","code":"KNIGHTS7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Overland Park Thunder","sport":"Soccer","city":"Overland Park, KS","state":"Kansas","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":76,"badge":"T","code":"THUNDER5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Wichita Rapids","sport":"Baseball","city":"Wichita, KS","state":"Kansas","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":77,"badge":"R","code":"RAPIDS4","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":800,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Overland Park Crusaders","sport":"Volleyball","city":"Overland Park, KS","state":"Kansas","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":78,"badge":"C","code":"CRUSADERS2","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Wichita Wolves","sport":"Lacrosse","city":"Wichita, KS","state":"Kansas","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":79,"badge":"W","code":"WOLVES5","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Louisville Crusaders","sport":"Basketball","city":"Louisville, KY","state":"Kentucky","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":80,"badge":"C","code":"CRUSADERS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Lexington Lightning","sport":"Soccer","city":"Lexington, KY","state":"Kentucky","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":81,"badge":"L","code":"LIGHTNING7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Louisville Storm","sport":"Baseball","city":"Louisville, KY","state":"Kentucky","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":82,"badge":"S","code":"STORM7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Lexington Outlaws","sport":"Volleyball","city":"Lexington, KY","state":"Kentucky","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":83,"badge":"O","code":"OUTLAWS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"12U Select","age":"12U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"14U Elite","age":"14U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Louisville Hawks","sport":"Lacrosse","city":"Louisville, KY","state":"Kentucky","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":84,"badge":"H","code":"HAWKS4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"New Orleans Royals","sport":"Basketball","city":"New Orleans, LA","state":"Louisiana","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":85,"badge":"R","code":"ROYALS3","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"18U Select","age":"18U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Baton Rouge Eagles","sport":"Soccer","city":"Baton Rouge, LA","state":"Louisiana","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":86,"badge":"E","code":"EAGLES5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"14U Elite","age":"14U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"New Orleans Rapids","sport":"Baseball","city":"New Orleans, LA","state":"Louisiana","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":87,"badge":"R","code":"RAPIDS5","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Baton Rouge Storm","sport":"Volleyball","city":"Baton Rouge, LA","state":"Louisiana","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":88,"badge":"S","code":"STORM8","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"New Orleans Rebels","sport":"Lacrosse","city":"New Orleans, LA","state":"Louisiana","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":89,"badge":"R","code":"REBELS7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Portland Vipers","sport":"Basketball","city":"Portland, ME","state":"Maine","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":90,"badge":"V","code":"VIPERS4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Bangor Stallions","sport":"Soccer","city":"Bangor, ME","state":"Maine","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":91,"badge":"S","code":"STALLIONS4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Portland Comets","sport":"Baseball","city":"Portland, ME","state":"Maine","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":92,"badge":"C","code":"COMETS4","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Bangor Wolves","sport":"Volleyball","city":"Bangor, ME","state":"Maine","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":93,"badge":"W","code":"WOLVES6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"12U Select","age":"12U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"14U Elite","age":"14U","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Portland Rapids","sport":"Lacrosse","city":"Portland, ME","state":"Maine","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":94,"badge":"R","code":"RAPIDS6","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1350,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Baltimore Titans","sport":"Basketball","city":"Baltimore, MD","state":"Maryland","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":95,"badge":"T","code":"TITANS3","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Annapolis Wolves","sport":"Soccer","city":"Annapolis, MD","state":"Maryland","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":96,"badge":"W","code":"WOLVES7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Baltimore Outlaws","sport":"Baseball","city":"Baltimore, MD","state":"Maryland","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":97,"badge":"O","code":"OUTLAWS4","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"14U Elite","age":"14U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Annapolis Bobcats","sport":"Volleyball","city":"Annapolis, MD","state":"Maryland","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":98,"badge":"B","code":"BOBCATS6","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Baltimore Royals","sport":"Lacrosse","city":"Baltimore, MD","state":"Maryland","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":99,"badge":"R","code":"ROYALS4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1350,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1350,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Boston Falcons","sport":"Basketball","city":"Boston, MA","state":"Massachusetts","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":100,"badge":"F","code":"FALCONS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Worcester Stallions","sport":"Soccer","city":"Worcester, MA","state":"Massachusetts","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":101,"badge":"S","code":"STALLIONS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"14U Elite","age":"14U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Boston Panthers","sport":"Baseball","city":"Boston, MA","state":"Massachusetts","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":102,"badge":"P","code":"PANTHERS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Worcester Rebels","sport":"Volleyball","city":"Worcester, MA","state":"Massachusetts","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":103,"badge":"R","code":"REBELS8","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"12U Select","age":"12U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"16U Elite","age":"16U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Boston Thunder","sport":"Lacrosse","city":"Boston, MA","state":"Massachusetts","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":104,"badge":"T","code":"THUNDER6","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"18U Select","age":"18U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Detroit Lightning","sport":"Basketball","city":"Detroit, MI","state":"Michigan","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":105,"badge":"L","code":"LIGHTNING8","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Ann Arbor Hawks","sport":"Soccer","city":"Ann Arbor, MI","state":"Michigan","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":106,"badge":"H","code":"HAWKS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1350,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":1250,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Detroit Eagles","sport":"Baseball","city":"Detroit, MI","state":"Michigan","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":107,"badge":"E","code":"EAGLES6","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1350,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Ann Arbor Storm","sport":"Volleyball","city":"Ann Arbor, MI","state":"Michigan","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":108,"badge":"S","code":"STORM9","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Detroit Panthers","sport":"Lacrosse","city":"Detroit, MI","state":"Michigan","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":109,"badge":"P","code":"PANTHERS7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Minneapolis Titans","sport":"Basketball","city":"Minneapolis, MN","state":"Minnesota","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":110,"badge":"T","code":"TITANS4","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"18U Select","age":"18U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Rochester Panthers","sport":"Soccer","city":"Rochester, MN","state":"Minnesota","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":111,"badge":"P","code":"PANTHERS8","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1250,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Minneapolis Bobcats","sport":"Baseball","city":"Minneapolis, MN","state":"Minnesota","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":112,"badge":"B","code":"BOBCATS7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"14U Elite","age":"14U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Rochester Hawks","sport":"Volleyball","city":"Rochester, MN","state":"Minnesota","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":113,"badge":"H","code":"HAWKS6","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"16U Elite","age":"16U","dues":1250,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Minneapolis Lightning","sport":"Lacrosse","city":"Minneapolis, MN","state":"Minnesota","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":114,"badge":"L","code":"LIGHTNING9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Jackson Falcons","sport":"Basketball","city":"Jackson, MS","state":"Mississippi","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":115,"badge":"F","code":"FALCONS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Gulfport Comets","sport":"Soccer","city":"Gulfport, MS","state":"Mississippi","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":116,"badge":"C","code":"COMETS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Jackson Bulldogs","sport":"Baseball","city":"Jackson, MS","state":"Mississippi","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":117,"badge":"B","code":"BULLDOGS4","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":800,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Gulfport Crusaders","sport":"Volleyball","city":"Gulfport, MS","state":"Mississippi","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":118,"badge":"C","code":"CRUSADERS4","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Jackson Titans","sport":"Lacrosse","city":"Jackson, MS","state":"Mississippi","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":119,"badge":"T","code":"TITANS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Kansas City Rapids","sport":"Basketball","city":"Kansas City, MO","state":"Missouri","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":120,"badge":"R","code":"RAPIDS7","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"St. Louis Outlaws","sport":"Soccer","city":"St. Louis, MO","state":"Missouri","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":121,"badge":"O","code":"OUTLAWS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":800,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"14U Elite","age":"14U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Kansas City Panthers","sport":"Baseball","city":"Kansas City, MO","state":"Missouri","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":122,"badge":"P","code":"PANTHERS9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":800,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"14U Elite","age":"14U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"St. Louis Titans","sport":"Volleyball","city":"St. Louis, MO","state":"Missouri","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":123,"badge":"T","code":"TITANS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"12U Select","age":"12U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"14U Elite","age":"14U","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Kansas City Eagles","sport":"Lacrosse","city":"Kansas City, MO","state":"Missouri","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":124,"badge":"E","code":"EAGLES7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Billings Wolves","sport":"Basketball","city":"Billings, MT","state":"Montana","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":125,"badge":"W","code":"WOLVES8","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Missoula Crusaders","sport":"Soccer","city":"Missoula, MT","state":"Montana","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":126,"badge":"C","code":"CRUSADERS5","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Billings Storm","sport":"Baseball","city":"Billings, MT","state":"Montana","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":127,"badge":"S","code":"STORM10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Missoula Titans","sport":"Volleyball","city":"Missoula, MT","state":"Montana","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":128,"badge":"T","code":"TITANS7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"16U Elite","age":"16U","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Billings Eagles","sport":"Lacrosse","city":"Billings, MT","state":"Montana","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":129,"badge":"E","code":"EAGLES8","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Omaha Storm","sport":"Basketball","city":"Omaha, NE","state":"Nebraska","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":130,"badge":"S","code":"STORM11","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1350,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Lincoln Rebels","sport":"Soccer","city":"Lincoln, NE","state":"Nebraska","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":131,"badge":"R","code":"REBELS9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Omaha Bobcats","sport":"Baseball","city":"Omaha, NE","state":"Nebraska","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":132,"badge":"B","code":"BOBCATS8","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Lincoln Falcons","sport":"Volleyball","city":"Lincoln, NE","state":"Nebraska","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":133,"badge":"F","code":"FALCONS7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"16U Elite","age":"16U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Omaha Bulldogs","sport":"Lacrosse","city":"Omaha, NE","state":"Nebraska","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":134,"badge":"B","code":"BULLDOGS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Las Vegas Outlaws","sport":"Basketball","city":"Las Vegas, NV","state":"Nevada","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":135,"badge":"O","code":"OUTLAWS6","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Reno Crusaders","sport":"Soccer","city":"Reno, NV","state":"Nevada","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":136,"badge":"C","code":"CRUSADERS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"14U Elite","age":"14U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Las Vegas Wolves","sport":"Baseball","city":"Las Vegas, NV","state":"Nevada","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":137,"badge":"W","code":"WOLVES9","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Reno Eagles","sport":"Volleyball","city":"Reno, NV","state":"Nevada","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":138,"badge":"E","code":"EAGLES9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Las Vegas Comets","sport":"Lacrosse","city":"Las Vegas, NV","state":"Nevada","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":139,"badge":"C","code":"COMETS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Manchester Knights","sport":"Basketball","city":"Manchester, NH","state":"New Hampshire","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":140,"badge":"K","code":"KNIGHTS8","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Nashua Bulldogs","sport":"Soccer","city":"Nashua, NH","state":"New Hampshire","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":141,"badge":"B","code":"BULLDOGS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Manchester Panthers","sport":"Baseball","city":"Manchester, NH","state":"New Hampshire","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":142,"badge":"P","code":"PANTHERS10","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"16U Elite","age":"16U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Nashua Thunder","sport":"Volleyball","city":"Nashua, NH","state":"New Hampshire","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":143,"badge":"T","code":"THUNDER7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Manchester Crusaders","sport":"Lacrosse","city":"Manchester, NH","state":"New Hampshire","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":144,"badge":"C","code":"CRUSADERS7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Newark Wolves","sport":"Basketball","city":"Newark, NJ","state":"New Jersey","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":145,"badge":"W","code":"WOLVES10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Princeton Outlaws","sport":"Soccer","city":"Princeton, NJ","state":"New Jersey","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":146,"badge":"O","code":"OUTLAWS7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"18U Select","age":"18U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Newark Lightning","sport":"Baseball","city":"Newark, NJ","state":"New Jersey","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":147,"badge":"L","code":"LIGHTNING10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Princeton Falcons","sport":"Volleyball","city":"Princeton, NJ","state":"New Jersey","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":148,"badge":"F","code":"FALCONS8","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Newark Rebels","sport":"Lacrosse","city":"Newark, NJ","state":"New Jersey","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":149,"badge":"R","code":"REBELS10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Albuquerque Rapids","sport":"Basketball","city":"Albuquerque, NM","state":"New Mexico","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":150,"badge":"R","code":"RAPIDS8","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Santa Fe Vipers","sport":"Soccer","city":"Santa Fe, NM","state":"New Mexico","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":151,"badge":"V","code":"VIPERS5","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"18U Select","age":"18U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Albuquerque Rebels","sport":"Baseball","city":"Albuquerque, NM","state":"New Mexico","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":152,"badge":"R","code":"REBELS11","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":800,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Santa Fe Titans","sport":"Volleyball","city":"Santa Fe, NM","state":"New Mexico","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":153,"badge":"T","code":"TITANS8","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Albuquerque Eagles","sport":"Lacrosse","city":"Albuquerque, NM","state":"New Mexico","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":154,"badge":"E","code":"EAGLES10","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Brooklyn Falcons","sport":"Basketball","city":"Brooklyn, NY","state":"New York","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":155,"badge":"F","code":"FALCONS9","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Buffalo Rebels","sport":"Soccer","city":"Buffalo, NY","state":"New York","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":156,"badge":"R","code":"REBELS12","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Brooklyn Panthers","sport":"Baseball","city":"Brooklyn, NY","state":"New York","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":157,"badge":"P","code":"PANTHERS11","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Buffalo Thunder","sport":"Volleyball","city":"Buffalo, NY","state":"New York","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":158,"badge":"T","code":"THUNDER8","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Brooklyn Stallions","sport":"Lacrosse","city":"Brooklyn, NY","state":"New York","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":159,"badge":"S","code":"STALLIONS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Charlotte Knights","sport":"Basketball","city":"Charlotte, NC","state":"North Carolina","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":160,"badge":"K","code":"KNIGHTS9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Raleigh Crusaders","sport":"Soccer","city":"Raleigh, NC","state":"North Carolina","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":161,"badge":"C","code":"CRUSADERS8","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"18U Select","age":"18U","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Charlotte Lightning","sport":"Baseball","city":"Charlotte, NC","state":"North Carolina","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":162,"badge":"L","code":"LIGHTNING11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Raleigh Falcons","sport":"Volleyball","city":"Raleigh, NC","state":"North Carolina","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":163,"badge":"F","code":"FALCONS10","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Charlotte Stallions","sport":"Lacrosse","city":"Charlotte, NC","state":"North Carolina","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":164,"badge":"S","code":"STALLIONS7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":800,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Fargo Knights","sport":"Basketball","city":"Fargo, ND","state":"North Dakota","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":165,"badge":"K","code":"KNIGHTS10","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Bismarck Comets","sport":"Soccer","city":"Bismarck, ND","state":"North Dakota","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":166,"badge":"C","code":"COMETS7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"18U Select","age":"18U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Fargo Storm","sport":"Baseball","city":"Fargo, ND","state":"North Dakota","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":167,"badge":"S","code":"STORM12","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Bismarck Wolves","sport":"Volleyball","city":"Bismarck, ND","state":"North Dakota","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":168,"badge":"W","code":"WOLVES11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Fargo Outlaws","sport":"Lacrosse","city":"Fargo, ND","state":"North Dakota","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":169,"badge":"O","code":"OUTLAWS8","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Columbus Stallions","sport":"Basketball","city":"Columbus, OH","state":"Ohio","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":170,"badge":"S","code":"STALLIONS8","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Cincinnati Hawks","sport":"Soccer","city":"Cincinnati, OH","state":"Ohio","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":171,"badge":"H","code":"HAWKS7","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"18U Select","age":"18U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Columbus Panthers","sport":"Baseball","city":"Columbus, OH","state":"Ohio","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":172,"badge":"P","code":"PANTHERS12","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Cincinnati Royals","sport":"Volleyball","city":"Cincinnati, OH","state":"Ohio","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":173,"badge":"R","code":"ROYALS5","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Columbus Outlaws","sport":"Lacrosse","city":"Columbus, OH","state":"Ohio","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":174,"badge":"O","code":"OUTLAWS9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Tulsa Titans","sport":"Basketball","city":"Tulsa, OK","state":"Oklahoma","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":175,"badge":"T","code":"TITANS9","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Oklahoma City Vipers","sport":"Soccer","city":"Oklahoma City, OK","state":"Oklahoma","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":176,"badge":"V","code":"VIPERS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Tulsa Storm","sport":"Baseball","city":"Tulsa, OK","state":"Oklahoma","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":177,"badge":"S","code":"STORM13","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Oklahoma City Comets","sport":"Volleyball","city":"Oklahoma City, OK","state":"Oklahoma","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":178,"badge":"C","code":"COMETS8","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Tulsa Thunder","sport":"Lacrosse","city":"Tulsa, OK","state":"Oklahoma","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":179,"badge":"T","code":"THUNDER9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":750,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Portland Comets","sport":"Basketball","city":"Portland, OR","state":"Oregon","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":180,"badge":"C","code":"COMETS9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Eugene Bobcats","sport":"Soccer","city":"Eugene, OR","state":"Oregon","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":181,"badge":"B","code":"BOBCATS9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Portland Royals","sport":"Baseball","city":"Portland, OR","state":"Oregon","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":182,"badge":"R","code":"ROYALS6","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1250,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Eugene Rebels","sport":"Volleyball","city":"Eugene, OR","state":"Oregon","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":183,"badge":"R","code":"REBELS13","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Portland Eagles","sport":"Lacrosse","city":"Portland, OR","state":"Oregon","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":184,"badge":"E","code":"EAGLES11","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Philadelphia Wolves","sport":"Basketball","city":"Philadelphia, PA","state":"Pennsylvania","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":185,"badge":"W","code":"WOLVES12","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Pittsburgh Rebels","sport":"Soccer","city":"Pittsburgh, PA","state":"Pennsylvania","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":186,"badge":"R","code":"REBELS14","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1250,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Philadelphia Panthers","sport":"Baseball","city":"Philadelphia, PA","state":"Pennsylvania","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":187,"badge":"P","code":"PANTHERS13","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"16U Elite","age":"16U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Pittsburgh Crusaders","sport":"Volleyball","city":"Pittsburgh, PA","state":"Pennsylvania","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":188,"badge":"C","code":"CRUSADERS9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Philadelphia Titans","sport":"Lacrosse","city":"Philadelphia, PA","state":"Pennsylvania","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":189,"badge":"T","code":"TITANS10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Providence Outlaws","sport":"Basketball","city":"Providence, RI","state":"Rhode Island","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":190,"badge":"O","code":"OUTLAWS10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Newport Rapids","sport":"Soccer","city":"Newport, RI","state":"Rhode Island","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":191,"badge":"R","code":"RAPIDS9","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":750,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"18U Select","age":"18U","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Providence Wolves","sport":"Baseball","city":"Providence, RI","state":"Rhode Island","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":192,"badge":"W","code":"WOLVES13","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":1300,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"16U Elite","age":"16U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Newport Bobcats","sport":"Volleyball","city":"Newport, RI","state":"Rhode Island","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":193,"badge":"B","code":"BOBCATS10","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"18U Select","age":"18U","dues":750,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Providence Comets","sport":"Lacrosse","city":"Providence, RI","state":"Rhode Island","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":194,"badge":"C","code":"COMETS10","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"14U Elite","age":"14U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Charleston Knights","sport":"Basketball","city":"Charleston, SC","state":"South Carolina","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":195,"badge":"K","code":"KNIGHTS11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Columbia Stallions","sport":"Soccer","city":"Columbia, SC","state":"South Carolina","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":196,"badge":"S","code":"STALLIONS9","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"18U Select","age":"18U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Charleston Eagles","sport":"Baseball","city":"Charleston, SC","state":"South Carolina","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":197,"badge":"E","code":"EAGLES12","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Columbia Royals","sport":"Volleyball","city":"Columbia, SC","state":"South Carolina","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":198,"badge":"R","code":"ROYALS7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1300,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Charleston Rapids","sport":"Lacrosse","city":"Charleston, SC","state":"South Carolina","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":199,"badge":"R","code":"RAPIDS10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Sioux Falls Bobcats","sport":"Basketball","city":"Sioux Falls, SD","state":"South Dakota","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":200,"badge":"B","code":"BOBCATS11","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Rapid City Bulldogs","sport":"Soccer","city":"Rapid City, SD","state":"South Dakota","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":201,"badge":"B","code":"BULLDOGS7","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"16U Elite","age":"16U","dues":1300,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Sioux Falls Lightning","sport":"Baseball","city":"Sioux Falls, SD","state":"South Dakota","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":202,"badge":"L","code":"LIGHTNING12","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Rapid City Falcons","sport":"Volleyball","city":"Rapid City, SD","state":"South Dakota","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":203,"badge":"F","code":"FALCONS11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"12U Select","age":"12U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"16U Elite","age":"16U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Sioux Falls Comets","sport":"Lacrosse","city":"Sioux Falls, SD","state":"South Dakota","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":204,"badge":"C","code":"COMETS11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Nashville Lightning","sport":"Basketball","city":"Nashville, TN","state":"Tennessee","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":205,"badge":"L","code":"LIGHTNING13","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Memphis Hawks","sport":"Soccer","city":"Memphis, TN","state":"Tennessee","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":206,"badge":"H","code":"HAWKS8","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Nashville Bulldogs","sport":"Baseball","city":"Nashville, TN","state":"Tennessee","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":207,"badge":"B","code":"BULLDOGS8","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1250,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"16U Elite","age":"16U","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Memphis Outlaws","sport":"Volleyball","city":"Memphis, TN","state":"Tennessee","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":208,"badge":"O","code":"OUTLAWS11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"12U Select","age":"12U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1300,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Nashville Comets","sport":"Lacrosse","city":"Nashville, TN","state":"Tennessee","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":209,"badge":"C","code":"COMETS12","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"14U Elite","age":"14U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Austin Comets","sport":"Basketball","city":"Austin, TX","state":"Texas","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":210,"badge":"C","code":"COMETS13","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Houston Rapids","sport":"Soccer","city":"Houston, TX","state":"Texas","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":211,"badge":"R","code":"RAPIDS11","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Austin Vipers","sport":"Baseball","city":"Austin, TX","state":"Texas","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":212,"badge":"V","code":"VIPERS7","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Houston Panthers","sport":"Volleyball","city":"Houston, TX","state":"Texas","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":213,"badge":"P","code":"PANTHERS14","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Austin Eagles","sport":"Lacrosse","city":"Austin, TX","state":"Texas","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":214,"badge":"E","code":"EAGLES13","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Salt Lake City Storm","sport":"Basketball","city":"Salt Lake City, UT","state":"Utah","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":215,"badge":"S","code":"STORM14","teams":[{"id":0,"name":"16U Travel","age":"16U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"18U Select","age":"18U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Provo Comets","sport":"Soccer","city":"Provo, UT","state":"Utah","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":216,"badge":"C","code":"COMETS14","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1300,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Salt Lake City Falcons","sport":"Baseball","city":"Salt Lake City, UT","state":"Utah","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":217,"badge":"F","code":"FALCONS12","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Provo Hawks","sport":"Volleyball","city":"Provo, UT","state":"Utah","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":218,"badge":"H","code":"HAWKS9","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1250,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Salt Lake City Titans","sport":"Lacrosse","city":"Salt Lake City, UT","state":"Utah","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":219,"badge":"T","code":"TITANS11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Burlington Crusaders","sport":"Basketball","city":"Burlington, VT","state":"Vermont","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":220,"badge":"C","code":"CRUSADERS10","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Montpelier Comets","sport":"Soccer","city":"Montpelier, VT","state":"Vermont","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":221,"badge":"C","code":"COMETS15","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Burlington Bobcats","sport":"Baseball","city":"Burlington, VT","state":"Vermont","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":222,"badge":"B","code":"BOBCATS12","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":800,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":800,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Montpelier Vipers","sport":"Volleyball","city":"Montpelier, VT","state":"Vermont","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":223,"badge":"V","code":"VIPERS8","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":800,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Burlington Lightning","sport":"Lacrosse","city":"Burlington, VT","state":"Vermont","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":224,"badge":"L","code":"LIGHTNING14","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Richmond Storm","sport":"Basketball","city":"Richmond, VA","state":"Virginia","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":225,"badge":"S","code":"STORM15","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Norfolk Panthers","sport":"Soccer","city":"Norfolk, VA","state":"Virginia","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":226,"badge":"P","code":"PANTHERS15","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":800,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Richmond Rapids","sport":"Baseball","city":"Richmond, VA","state":"Virginia","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":227,"badge":"R","code":"RAPIDS12","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1350,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Norfolk Thunder","sport":"Volleyball","city":"Norfolk, VA","state":"Virginia","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":228,"badge":"T","code":"THUNDER10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Richmond Titans","sport":"Lacrosse","city":"Richmond, VA","state":"Virginia","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":229,"badge":"T","code":"TITANS12","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1350,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1250,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Seattle Rapids","sport":"Basketball","city":"Seattle, WA","state":"Washington","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":230,"badge":"R","code":"RAPIDS13","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Tacoma Lightning","sport":"Soccer","city":"Tacoma, WA","state":"Washington","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":231,"badge":"L","code":"LIGHTNING15","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Seattle Royals","sport":"Baseball","city":"Seattle, WA","state":"Washington","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":232,"badge":"R","code":"ROYALS8","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1200,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":1350,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Tacoma Thunder","sport":"Volleyball","city":"Tacoma, WA","state":"Washington","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":233,"badge":"T","code":"THUNDER11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Seattle Stallions","sport":"Lacrosse","city":"Seattle, WA","state":"Washington","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":234,"badge":"S","code":"STALLIONS10","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Charleston Storm","sport":"Basketball","city":"Charleston, WV","state":"West Virginia","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":235,"badge":"S","code":"STORM16","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Morgantown Rebels","sport":"Soccer","city":"Morgantown, WV","state":"West Virginia","dues":1200,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":236,"badge":"R","code":"REBELS15","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1100,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"18U Select","age":"18U","dues":1300,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Charleston Rapids","sport":"Baseball","city":"Charleston, WV","state":"West Virginia","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":237,"badge":"R","code":"RAPIDS14","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"14U Select","age":"14U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Morgantown Vipers","sport":"Volleyball","city":"Morgantown, WV","state":"West Virginia","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":238,"badge":"V","code":"VIPERS9","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":1000,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":1050,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Charleston Outlaws","sport":"Lacrosse","city":"Charleston, WV","state":"West Virginia","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":239,"badge":"O","code":"OUTLAWS12","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Milwaukee Rebels","sport":"Basketball","city":"Milwaukee, WI","state":"Wisconsin","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":240,"badge":"R","code":"REBELS16","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":850,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Madison Royals","sport":"Soccer","city":"Madison, WI","state":"Wisconsin","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":241,"badge":"R","code":"ROYALS9","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1000,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"16U Select","age":"16U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Milwaukee Crusaders","sport":"Baseball","city":"Milwaukee, WI","state":"Wisconsin","dues":1150,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":242,"badge":"C","code":"CRUSADERS11","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":1250,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"18U Select","age":"18U","dues":1300,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Madison Eagles","sport":"Volleyball","city":"Madison, WI","state":"Wisconsin","dues":950,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":243,"badge":"E","code":"EAGLES14","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"16U Select","age":"16U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":2,"name":"18U Elite","age":"18U","dues":850,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Milwaukee Falcons","sport":"Lacrosse","city":"Milwaukee, WI","state":"Wisconsin","dues":1000,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":244,"badge":"F","code":"FALCONS13","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"18U Select","age":"18U","dues":950,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Cheyenne Eagles","sport":"Basketball","city":"Cheyenne, WY","state":"Wyoming","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":245,"badge":"E","code":"EAGLES15","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]},{"name":"Casper Stallions","sport":"Soccer","city":"Casper, WY","state":"Wyoming","dues":850,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":246,"badge":"S","code":"STALLIONS11","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":900,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"12U Select","age":"12U","dues":800,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"18U Elite","age":"18U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]},{"name":"Cheyenne Crusaders","sport":"Baseball","city":"Cheyenne, WY","state":"Wyoming","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30","id":247,"badge":"C","code":"CRUSADERS12","teams":[{"id":0,"name":"14U Travel","age":"14U","dues":950,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":1,"name":"16U Select","age":"16U","dues":1100,"start":"Sept 13","end":"Dec 6","due":"Aug 30"},{"id":2,"name":"18U Elite","age":"18U","dues":1000,"start":"Sept 13","end":"Dec 6","due":"Aug 30"}]},{"name":"Casper Royals","sport":"Volleyball","city":"Casper, WY","state":"Wyoming","dues":1150,"start":"Sept 20","end":"Dec 13","due":"Sept 6","id":248,"badge":"R","code":"ROYALS10","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1300,"start":"Sept 20","end":"Dec 13","due":"Sept 6"},{"id":1,"name":"14U Select","age":"14U","dues":1200,"start":"Sept 20","end":"Dec 13","due":"Sept 6"}]},{"name":"Cheyenne Thunder","sport":"Lacrosse","city":"Cheyenne, WY","state":"Wyoming","dues":1150,"start":"Aug 30","end":"Nov 15","due":"Aug 16","id":249,"badge":"T","code":"THUNDER12","teams":[{"id":0,"name":"10U Travel","age":"10U","dues":1300,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":1,"name":"12U Select","age":"12U","dues":1200,"start":"Aug 30","end":"Nov 15","due":"Aug 16"},{"id":2,"name":"16U Elite","age":"16U","dues":1050,"start":"Aug 30","end":"Nov 15","due":"Aug 16"}]}];
-var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado","Connecticut","Delaware","Florida","Georgia","Hawaii","Idaho","Illinois","Indiana","Iowa","Kansas","Kentucky","Louisiana","Maine","Maryland","Massachusetts","Michigan","Minnesota","Mississippi","Missouri","Montana","Nebraska","Nevada","New Hampshire","New Jersey","New Mexico","New York","North Carolina","North Dakota","Ohio","Oklahoma","Oregon","Pennsylvania","Rhode Island","South Carolina","South Dakota","Tennessee","Texas","Utah","Vermont","Virginia","Washington","West Virginia","Wisconsin","Wyoming"];
+  var clubs = [{"name":"Basketball Club","sport":"Basketball","city":"Richmond, VA","state":"Virginia","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23","id":0,"badge":"B","code":"BBALL1","teams":[{"id":0,"name":"12U Travel","age":"12U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":1,"name":"14U Select","age":"14U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"},{"id":2,"name":"16U Elite","age":"16U","dues":950,"start":"Sept 6","end":"Nov 22","due":"Aug 23"}]}];
+var usStates = ["Virginia"];
 
   var firstNames = ['Mason','Ava','Liam','Sophia','Noah','Isabella','Ethan','Mia','Lucas','Harper','Carter','Layla','Owen','Aria','Wyatt','Nora','Grant','Ellie','Jaxon','Riley'];
   var lastNames = ['Bennett','Carter','Dawson','Ellis','Foster','Grant','Hayes','Irving','Jennings','Kemp','Lawson','Marsh','Nash','Ortiz','Pierce','Quinn','Reyes','Sloan','Tate','Vance'];
@@ -1206,27 +1338,55 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     document.getElementById('backBtn').style.display = 'flex';
   }
 
-  // ---------- club select ----------
-  // ---------- club select / search ----------
-  var clubListEl = document.getElementById('clubList');
-  var noResultsEl = document.getElementById('noResults');
-  var stateSelectEl = document.getElementById('stateSelect');
-  var searchSectionEl = document.getElementById('searchSection');
+  // ---------- club login (code + PIN) ----------
+  var CLUB_SESSION_KEY = 'playfund_club_session';
 
-  usStates.forEach(function(s){
-    var opt = document.createElement('option');
-    opt.value = s; opt.textContent = s;
-    stateSelectEl.appendChild(opt);
-  });
+  function clearClubError(){
+    var el = document.getElementById('clubLoginError');
+    if(el) el.textContent = '';
+  }
 
-  function onStateChange(){
-    var s = stateSelectEl.value;
-    state.selectedState = s;
-    state.club = null;
-    document.getElementById('clubContinueBtn').disabled = true;
-    document.getElementById('clubSearch').value = '';
-    searchSectionEl.style.display = s ? 'block' : 'none';
-    renderClubs([]);
+  function submitClubLogin(){
+    var code = (document.getElementById('clubCodeInput').value || '').trim().toUpperCase();
+    var pin = (document.getElementById('clubPinInput').value || '').trim();
+    var club = clubs.find(function(c){ return c.code === code; });
+    if(!club){
+      document.getElementById('clubLoginError').textContent = "Club code not found. Try BBALL1.";
+      return;
+    }
+    if(pin.length !== 4 || !/^\d{4}$/.test(pin)){
+      document.getElementById('clubLoginError').textContent = "PIN must be 4 digits. Use any 4-digit PIN for the demo.";
+      return;
+    }
+    try { localStorage.setItem(CLUB_SESSION_KEY, JSON.stringify({ clubId: club.id, pin: pin })); } catch(e){}
+    state.club = club;
+    openClubOverview();
+  }
+
+  function enterClubMode(){
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(CLUB_SESSION_KEY) || 'null'); } catch(e){}
+    if(saved && saved.clubId != null){
+      var club = clubs.find(function(c){ return c.id === saved.clubId; });
+      if(club){ state.club = club; openClubOverview(); return; }
+    }
+    showScreen('club-select');
+  }
+
+  function switchClub(){
+    try { localStorage.removeItem(CLUB_SESSION_KEY); } catch(e){}
+    state.club = null; state.team = null;
+    var codeEl = document.getElementById('clubCodeInput');
+    var pinEl = document.getElementById('clubPinInput');
+    if(codeEl) codeEl.value = '';
+    if(pinEl) pinEl.value = '';
+    clearClubError();
+    showScreen('club-select');
+  }
+
+  function addTeam(){
+    // Shell: acknowledge the action — real team creation would need backend support.
+    alert('Add team — this feature would let a club director create a new age-group team, set season dues, and generate a team PIN. Coming soon!');
   }
 
   // ---------- sport visual mapping (color-coded badges, per card design pattern) ----------
@@ -1246,50 +1406,6 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     return sportVisuals[sport] || { color: 'var(--ink-soft)', bg: 'var(--paper-dim)', icon: '' };
   }
 
-  function renderClubs(filtered){
-    clubListEl.innerHTML = '';
-    var q = document.getElementById('clubSearch').value.trim();
-    if(filtered.length === 0){
-      noResultsEl.textContent = q ? 'No clubs found. Try a different search.' : 'Type a club name to search.';
-      noResultsEl.style.display = 'block';
-      return;
-    }
-    noResultsEl.style.display = 'none';
-    filtered.forEach(function(c){
-      var v = sportVisual(c.sport);
-      var div = document.createElement('div');
-      div.className = 'club-option';
-      div.dataset.id = c.id;
-      div.style.setProperty('--sport-color', v.color);
-      div.style.setProperty('--sport-bg', v.bg);
-      div.style.borderLeftColor = v.color;
-      if(state.club && state.club.id === c.id) div.classList.add('selected');
-      div.innerHTML =
-        '<div class="club-badge">' + v.icon + '</div>' +
-        '<div class="club-meta"><div class="club-name">' + c.name + '</div><div class="club-sport">' + c.sport + '</div><div class="club-location">' + c.city + '</div></div>' +
-        '<div class="club-check"></div>';
-      div.addEventListener('click', function(){
-        document.querySelectorAll('.club-option').forEach(function(o){ o.classList.remove('selected'); });
-        div.classList.add('selected');
-        state.club = c;
-        document.getElementById('clubContinueBtn').disabled = false;
-      });
-      clubListEl.appendChild(div);
-    });
-  }
-  function filterClubs(){
-    var q = document.getElementById('clubSearch').value.trim().toLowerCase();
-    if(!state.selectedState || q.length === 0){
-      renderClubs([]);
-      return;
-    }
-    var filtered = clubs.filter(function(c){
-      return c.state === state.selectedState &&
-        (c.name.toLowerCase().indexOf(q) !== -1 || c.sport.toLowerCase().indexOf(q) !== -1);
-    });
-    renderClubs(filtered);
-  }
-  renderClubs([]);
   updateFeeBreakdowns();
 
   // Computes a deterministic roster + funded/collected summary for one team.
@@ -1436,6 +1552,126 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     return '$' + amount.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
   }
 
+  // ---------- cost breakdown by sport ----------
+  // Line items add up exactly to 100% — JS computes dollar amounts from dues at render time.
+  // Format: { label, pct (decimal), icon (svg path string) }
+  // ---------- cost breakdown by sport ----------
+  var COACH_ICON = '<path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>';
+  var GYM_ICON   = '<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/>';
+  var KIT_ICON   = '<path d="M20.38 3.46L16 2a4 4 0 01-8 0L3.62 3.46a2 2 0 00-1.34 2.23l.58 3.57a1 1 0 00.99.84H6v10c0 1.1.9 2 2 2h8a2 2 0 002-2V10h2.15a1 1 0 00.99-.84l.58-3.57a2 2 0 00-1.34-2.23z"/>';
+  var TROPHY_ICON= '<path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0012 0V2z"/>';
+
+  var SPORT_TOURNAMENTS = {
+    'Basketball': [
+      { name: 'Fall Kickoff Classic', date: 'Sept 14, 2026', location: 'Richmond, VA' },
+      { name: 'Mid-Atlantic Showcase', date: 'Oct 5, 2026', location: 'Washington, D.C.' },
+      { name: 'Regional Championship', date: 'Nov 2, 2026', location: 'Charlotte, NC' }
+    ],
+    'Soccer': [
+      { name: 'Capital Cup', date: 'Sept 20, 2026', location: 'Arlington, VA' },
+      { name: 'Blue Ridge Classic', date: 'Oct 11, 2026', location: 'Roanoke, VA' },
+      { name: 'State Qualifier', date: 'Nov 8, 2026', location: 'Richmond, VA' }
+    ],
+    'Baseball': [
+      { name: 'Fall Ball Invitational', date: 'Sept 13, 2026', location: 'Fredericksburg, VA' },
+      { name: 'Diamond Classic', date: 'Oct 4, 2026', location: 'Norfolk, VA' },
+      { name: 'Travel Ball Showdown', date: 'Oct 25, 2026', location: 'Raleigh, NC' }
+    ],
+    'Volleyball': [
+      { name: 'Spike & Serve Open', date: 'Sept 27, 2026', location: 'Richmond, VA' },
+      { name: 'Commonwealth Classic', date: 'Oct 18, 2026', location: 'Harrisonburg, VA' },
+      { name: 'Atlantic Regional', date: 'Nov 15, 2026', location: 'Virginia Beach, VA' }
+    ],
+    'Youth Lacrosse': [
+      { name: 'Fall Lax Fest', date: 'Sept 6, 2026', location: 'Annapolis, MD' },
+      { name: 'Mid-Atlantic Invitational', date: 'Sept 27, 2026', location: 'Baltimore, MD' },
+      { name: 'Crown Classic', date: 'Oct 18, 2026', location: 'Bethesda, MD' },
+      { name: 'State Qualifier', date: 'Nov 8, 2026', location: 'Richmond, VA' }
+    ]
+  };
+
+  var SPORT_BREAKDOWNS = {
+    'Basketball':   [ { label: 'Tournament fees', pct: 0.45, icon: TROPHY_ICON, isTournament: true },
+                      { label: 'Practice gym rental', pct: 0.30, icon: GYM_ICON },
+                      { label: 'Uniforms', pct: 0.15, icon: KIT_ICON },
+                      { label: 'Coaching & staff', pct: 0.10, icon: COACH_ICON } ],
+    'Soccer':       [ { label: 'Tournament fees', pct: 0.40, icon: TROPHY_ICON, isTournament: true },
+                      { label: 'Field rental', pct: 0.35, icon: GYM_ICON },
+                      { label: 'Uniforms', pct: 0.15, icon: KIT_ICON },
+                      { label: 'Coaching & staff', pct: 0.10, icon: COACH_ICON } ],
+    'Baseball':     [ { label: 'Tournament fees', pct: 0.35, icon: TROPHY_ICON, isTournament: true },
+                      { label: 'Field rental', pct: 0.25, icon: GYM_ICON },
+                      { label: 'Equipment & uniforms', pct: 0.25, icon: KIT_ICON },
+                      { label: 'Coaching & staff', pct: 0.15, icon: COACH_ICON } ],
+    'Volleyball':   [ { label: 'Tournament fees', pct: 0.40, icon: TROPHY_ICON, isTournament: true },
+                      { label: 'Gym rental', pct: 0.35, icon: GYM_ICON },
+                      { label: 'Uniforms', pct: 0.15, icon: KIT_ICON },
+                      { label: 'Coaching & staff', pct: 0.10, icon: COACH_ICON } ],
+    'Youth Lacrosse':[ { label: 'Tournament fees', pct: 0.50, icon: TROPHY_ICON, isTournament: true },
+                       { label: 'Equipment & uniforms', pct: 0.25, icon: KIT_ICON },
+                       { label: 'Field rental', pct: 0.15, icon: GYM_ICON },
+                       { label: 'Coaching & staff', pct: 0.10, icon: COACH_ICON } ]
+  };
+
+  var tournamentOpen = false;
+
+  function buildBreakdown(sport, dues){
+    var items = SPORT_BREAKDOWNS[sport] || SPORT_BREAKDOWNS['Basketball'];
+    var panel = document.getElementById('breakdownPanel');
+    if(!panel) return;
+    tournamentOpen = false;
+
+    // Round each to nearest $25, then fix residual on the largest item
+    var amts = items.map(function(item){ return Math.round(dues * item.pct / 25) * 25; });
+    var total = amts.reduce(function(a,b){ return a+b; }, 0);
+    amts[amts.indexOf(Math.max.apply(null, amts))] += (dues - total);
+
+    var rows = items.map(function(item, i){
+      return { label: item.label, amt: amts[i], icon: item.icon, isTournament: !!item.isTournament };
+    });
+
+    var tournaments = SPORT_TOURNAMENTS[sport] || [];
+
+    panel.innerHTML = rows.map(function(row){
+      var chevronHtml = row.isTournament
+        ? ' <span id="tournamentChevron" style="font-size:11px; color:var(--ink-soft); transition:transform 0.2s ease; display:inline-block;">&#8250;</span>'
+        : '';
+      var rowHtml = '<div class="breakdown-row' + (row.isTournament ? ' breakdown-row-tournament' : '') + '"' +
+        (row.isTournament ? ' onclick="toggleTournaments()" style="cursor:pointer;"' : '') + '>' +
+        '<div class="breakdown-row-left">' +
+          '<div class="breakdown-row-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' + row.icon + '</svg></div>' +
+          '<div class="breakdown-row-label">' + row.label + chevronHtml + '</div>' +
+        '</div>' +
+        '<div class="breakdown-row-amt">' + fmtUSD(row.amt) + '</div>' +
+      '</div>';
+      if(row.isTournament){
+        rowHtml += '<div class="tournament-list" id="tournamentList">' +
+          tournaments.map(function(t){
+            return '<div class="tournament-item"><div class="tournament-name">' + t.name + '</div>' +
+              '<div class="tournament-meta">' + t.date + ' &middot; ' + t.location + '</div></div>';
+          }).join('') + '</div>';
+      }
+      return rowHtml;
+    }).join('');
+  }
+
+  function toggleTournaments(){
+    var list = document.getElementById('tournamentList');
+    var chevron = document.getElementById('tournamentChevron');
+    if(!list) return;
+    tournamentOpen = !tournamentOpen;
+    list.classList.toggle('open', tournamentOpen);
+    if(chevron) chevron.style.transform = tournamentOpen ? 'rotate(90deg)' : '';
+  }
+
+  function toggleBreakdown(){
+    var panel = document.getElementById('breakdownPanel');
+    var chevron = document.getElementById('breakdownChevron');
+    var isOpen = panel.classList.contains('open');
+    panel.classList.toggle('open', !isOpen);
+    chevron.classList.toggle('open', !isOpen);
+  }
+
   // ---------- parent: multi-athlete flow ----------
   var ATHLETES_STORAGE_KEY = 'playfund_parent_athletes';
 
@@ -1553,6 +1789,12 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     // the shared clubs/teams dataset (ct.team is a direct reference into it).
     state.parentClub = Object.assign({}, ct.team, { name: ct.club.name + ' \u2014 ' + ct.team.name });
     updateFeeBreakdowns();
+    // Populate cost breakdown for this sport + dues, and reset to closed state.
+    buildBreakdown(ct.club.sport, ct.team.dues);
+    var panel = document.getElementById('breakdownPanel');
+    var chevron = document.getElementById('breakdownChevron');
+    if(panel) panel.classList.remove('open');
+    if(chevron) chevron.classList.remove('open');
     showScreen('athlete-detail');
   }
 
@@ -1661,6 +1903,81 @@ var usStates = ["Alabama","Alaska","Arizona","Arkansas","California","Colorado",
     var c = state.club;
     if(c) document.getElementById('clubSettingsSubtitle').textContent = 'Manage payout details and teams for ' + c.name + '.';
     showScreen('club-settings');
+  }
+
+  // ---------- Stripe payment links ----------
+  // Test mode links — swap to live links when ready for real pilot.
+  var STRIPE_LINKS = {
+    'pay-card':   'https://buy.stripe.com/test_5kQcN4gYt1bhb1LgIB3Je00',
+    'pay-ach':    'https://buy.stripe.com/test_3cIcN4bE98DJedXcsl3Je01',
+    'bnpl-8':     'https://buy.stripe.com/test_3cI00i6jP3jp2vfeAt3Je02',
+    'bnpl-12':    'https://buy.stripe.com/test_14A4gy23z07d0n763X3Je03'
+  };
+
+  var STRIPE_DESCS = {
+    'pay-card':  'One-time card payment · Season dues',
+    'pay-ach':   'One-time ACH bank transfer · Season dues',
+    'bnpl-8':    '8 weekly installments · First payment today',
+    'bnpl-12':   '12 weekly installments · First payment today'
+  };
+
+  var stripeReturnScreen = null;
+  var stripePaymentType  = null;
+
+  function openStripeModal(linkKey, returnScreen, paymentType, termWeeks){
+    var url = STRIPE_LINKS[linkKey];
+    if(!url){ console.warn('No Stripe link for:', linkKey); return; }
+    stripeReturnScreen = returnScreen;
+    stripePaymentType  = paymentType;
+    if(termWeeks) state.selectedTermWeeks = termWeeks;
+
+    // Populate interstitial content
+    document.getElementById('stripeInterstitialTitle').textContent =
+      paymentType === 'bnpl' ? 'Set up payment plan' : 'Pay now';
+    document.getElementById('stripeInterstitialDesc').innerHTML =
+      'You\'ll complete payment on <b>Stripe\'s secure checkout page</b>. ' +
+      'Tap the button below — when you\'re done, come back here to see your confirmation.<br><br>' +
+      '<span style="font-size:12px; color:var(--ink-soft);">' + (STRIPE_DESCS[linkKey] || '') + '</span>';
+    document.getElementById('stripePayBtn').href = url;
+    document.getElementById('stripeReturnBtn').style.display = 'none';
+
+    document.getElementById('stripeModal').style.display = 'block';
+    document.body.style.overflow = 'hidden';
+  }
+
+  function onStripePayTapped(){
+    // After parent taps "Open Stripe checkout", show the "I've completed payment" return button
+    setTimeout(function(){
+      document.getElementById('stripeReturnBtn').style.display = 'block';
+    }, 1500);
+  }
+
+  function closeStripeModal(paymentCompleted){
+    document.getElementById('stripeModal').style.display = 'none';
+    document.body.style.overflow = '';
+    if(paymentCompleted && stripeReturnScreen){
+      if(stripePaymentType) recordAthletePayment(stripePaymentType, state.selectedTermWeeks);
+      showScreen(stripeReturnScreen);
+    }
+  }
+
+  // ---- Wiring: Pay Now button (card or ACH, determined by current method state) ----
+  function initiatePayNow(){
+    var method = state.paymentMethod || 'card';
+    var linkKey = method === 'ach' ? 'pay-ach' : 'pay-card';
+    openStripeModal(linkKey, 'confirm-now', 'full', null);
+  }
+
+  // ---- Wiring: BNPL Complete order (8 or 12 week, determined by term selection) ----
+  function initiateBnpl(){
+    var weeks = state.selectedTermWeeks || 8;
+    var linkKey = 'bnpl-' + weeks;
+    if(!STRIPE_LINKS[linkKey]){
+      // Fallback gracefully if a term has no link (shouldn't happen with 8+12)
+      alert('Payment link not configured for ' + weeks + '-week plan. Please select 8 or 12 weeks.');
+      return;
+    }
+    openStripeModal(linkKey, 'confirm-terms', 'bnpl', weeks);
   }
 
   // ---------- pay now method toggle ----------
