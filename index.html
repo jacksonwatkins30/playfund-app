@@ -800,6 +800,9 @@
         <div class="role-sub">Pay season dues</div>
       </div>
     </div>
+    <button onclick="showScreen('admin-login')" style="background:none; border:none; margin-top:20px; font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:'Inter',sans-serif;">
+      PlayFund Admin ↗
+    </button>
   </div>
 
   <!-- SCREEN: club select -->
@@ -1324,6 +1327,73 @@
     <p id="addAthleteAdminError" style="font-size:12.5px; color:var(--unpaid); min-height:16px; margin:4px 0 12px;"></p>
     <div class="footer-spacer"></div>
     <button class="btn btn-primary" onclick="submitAddAthleteAdmin()">Add athlete</button>
+  </div>
+
+  <!-- SCREEN: admin login -->
+  <div class="screen" id="screen-admin-login">
+    <div class="eyebrow">PlayFund</div>
+    <h1 class="title">Admin access</h1>
+    <p class="subtitle">Internal use only — PlayFund team access across all clubs.</p>
+    <div class="field" style="margin-bottom:6px;">
+      <label>Admin passcode</label>
+      <input type="password" id="adminPasscode" placeholder="Enter passcode" autocomplete="off">
+    </div>
+    <p id="adminLoginError" style="font-size:12.5px; color:var(--unpaid); min-height:16px; margin:4px 0 18px;"></p>
+    <div class="footer-spacer"></div>
+    <button class="btn btn-primary" onclick="submitAdminLogin()">Sign in</button>
+  </div>
+
+  <!-- SCREEN: admin clubs list -->
+  <div class="screen" id="screen-admin-clubs">
+    <div class="eyebrow">PlayFund Admin</div>
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+      <h1 class="title" style="margin-bottom:0;">All clubs</h1>
+      <button onclick="loadAdminClubs()" style="background:none; border:none; padding:6px 0; font-size:12.5px; font-weight:700; color:var(--fund-green); cursor:pointer; font-family:'Inter',sans-serif;">↻ Refresh</button>
+    </div>
+    <p class="subtitle" id="adminClubsSubtitle">Loading…</p>
+    <div id="adminClubList"></div>
+  </div>
+
+  <!-- SCREEN: admin club detail (teams + athletes) -->
+  <div class="screen" id="screen-admin-club-detail">
+    <div class="eyebrow">PlayFund Admin</div>
+    <h1 class="title" id="adminClubDetailName">Club</h1>
+    <p class="subtitle" id="adminClubDetailSub">City · Sport</p>
+    <div class="overview-rollup" style="margin-bottom:20px;">
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminDetailTeams">0</div>
+        <div class="overview-rollup-label">Teams</div>
+      </div>
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminDetailAthletes">0</div>
+        <div class="overview-rollup-label">Athletes</div>
+      </div>
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminDetailFunded">0</div>
+        <div class="overview-rollup-label">Funded</div>
+      </div>
+    </div>
+    <div class="roster-section-label">Teams</div>
+    <div id="adminTeamList"></div>
+  </div>
+
+  <!-- SCREEN: admin team roster (read-only) -->
+  <div class="screen" id="screen-admin-team-roster">
+    <div class="eyebrow">PlayFund Admin</div>
+    <h1 class="title" id="adminRosterTitle">Team roster</h1>
+    <p class="subtitle" id="adminRosterSub"></p>
+    <div class="funded-row" style="background:var(--ink); border-radius:14px; padding:16px 18px; margin-bottom:20px; color:var(--white);">
+      <div class="funded-stat">
+        <div class="funded-stat-num" id="adminRosterFunded">0/0</div>
+        <div class="funded-stat-label">Athletes Funded</div>
+      </div>
+      <div class="funded-stat-divider"></div>
+      <div class="funded-stat">
+        <div class="funded-stat-num" id="adminRosterCollected">$0</div>
+        <div class="funded-stat-label">Collected</div>
+      </div>
+    </div>
+    <div id="adminRosterList"></div>
   </div>
 
 </div>
@@ -2205,6 +2275,153 @@ var usStates = ["Virginia"];
       listEl.appendChild(card);
     });
     showScreen('parent-settings');
+  }
+
+  // ---------- PlayFund admin ----------
+  var ADMIN_PASSCODE = 'playfund2026'; // simple pilot passcode — change before going live
+
+  function submitAdminLogin(){
+    var code = document.getElementById('adminPasscode').value.trim();
+    var errEl = document.getElementById('adminLoginError');
+    if(code !== ADMIN_PASSCODE){
+      errEl.textContent = 'Incorrect passcode.'; return;
+    }
+    errEl.textContent = '';
+    document.getElementById('adminPasscode').value = '';
+    loadAdminClubs();
+  }
+
+  async function loadAdminClubs(){
+    showScreen('admin-clubs');
+    document.getElementById('adminClubsSubtitle').textContent = 'Loading…';
+    document.getElementById('adminClubList').innerHTML = '';
+    try {
+      var res = await fetch(WORKER_URL + '/admin/clubs');
+      var data = await res.json();
+      var clubs = data.clubs || [];
+      document.getElementById('adminClubsSubtitle').textContent =
+        clubs.length + ' club' + (clubs.length !== 1 ? 's' : '') + ' on PlayFund';
+
+      var listEl = document.getElementById('adminClubList');
+      listEl.innerHTML = '';
+      if(clubs.length === 0){
+        listEl.innerHTML = '<p style="color:var(--ink-soft); font-size:14px; text-align:center; padding:32px 0;">No clubs yet.</p>';
+        return;
+      }
+      clubs.forEach(function(club){
+        var pct = club.athlete_count ? Math.round(club.funded_count / club.athlete_count * 100) : 0;
+        var card = document.createElement('div');
+        card.className = 'team-card';
+        card.style.marginBottom = '10px';
+        card.innerHTML =
+          '<div class="team-card-icon" style="background:var(--paper-dim);">' +
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a10 10 0 100 20 10 10 0 000-20z"/><path d="M2 12h20"/></svg>' +
+          '</div>' +
+          '<div class="team-card-meta">' +
+            '<div class="team-card-name">' + club.name + '</div>' +
+            '<div class="team-card-sub">' + club.city + ' &middot; ' + club.sport + ' &middot; ' + club.team_count + ' teams</div>' +
+          '</div>' +
+          '<div class="team-card-funded">' +
+            '<div class="team-card-funded-num">' + club.funded_count + '/' + club.athlete_count + '</div>' +
+            '<div class="team-card-funded-label">Funded</div>' +
+          '</div>';
+        card.addEventListener('click', function(){ openAdminClubDetail(club); });
+        listEl.appendChild(card);
+      });
+    } catch(e) {
+      document.getElementById('adminClubsSubtitle').textContent = 'Error loading clubs.';
+    }
+  }
+
+  function openAdminClubDetail(club){
+    document.getElementById('adminClubDetailName').textContent = club.name;
+    document.getElementById('adminClubDetailSub').textContent = club.city + ' · ' + club.sport + ' · Code: ' + club.code;
+    document.getElementById('adminDetailTeams').textContent = club.team_count;
+    document.getElementById('adminDetailAthletes').textContent = club.athlete_count;
+    document.getElementById('adminDetailFunded').textContent = club.funded_count;
+
+    var teamListEl = document.getElementById('adminTeamList');
+    teamListEl.innerHTML = '';
+    (club.teams || []).forEach(function(team){
+      var card = document.createElement('div');
+      card.className = 'team-card';
+      card.style.marginBottom = '10px';
+      card.innerHTML =
+        '<div class="team-card-icon" style="background:var(--paper-dim);">' +
+          '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M5 21v-2a7 7 0 0114 0v2"/></svg>' +
+        '</div>' +
+        '<div class="team-card-meta">' +
+          '<div class="team-card-name">' + team.name + '</div>' +
+          '<div class="team-card-sub">' + fmtUSD(team.dues_cents/100) + ' dues</div>' +
+        '</div>' +
+        '<div style="color:var(--ink-soft); font-size:12px;">View →</div>';
+      card.addEventListener('click', function(){ openAdminTeamRoster(club, team); });
+      teamListEl.appendChild(card);
+    });
+
+    showScreen('admin-club-detail');
+  }
+
+  async function openAdminTeamRoster(club, team){
+    document.getElementById('adminRosterTitle').textContent = club.name + ' — ' + team.name;
+    document.getElementById('adminRosterSub').textContent = fmtUSD(team.dues_cents/100) + ' season dues';
+    document.getElementById('adminRosterList').innerHTML = '<p style="color:var(--ink-soft); font-size:14px; padding:16px 0;">Loading…</p>';
+    document.getElementById('adminRosterFunded').textContent = '…';
+    document.getElementById('adminRosterCollected').textContent = '…';
+    showScreen('admin-team-roster');
+
+    try {
+      var res = await fetch(WORKER_URL + '/club/' + club.code);
+      var data = await res.json();
+      var liveTeam = (data.club.teams || []).find(function(t){ return t.id === team.id; });
+      if(!liveTeam){ document.getElementById('adminRosterList').innerHTML = '<p>Team not found.</p>'; return; }
+
+      var athletes = liveTeam.athletes || [];
+      var dues = liveTeam.dues_cents / 100;
+      var advanceAmt = Math.round(dues * 0.95);
+      var funded = 0, collected = 0;
+      athletes.forEach(function(a){
+        var s = a.payment_status || 'unpaid';
+        if(['paid_full','bnpl_active','bnpl_complete'].includes(s)){ funded++; }
+        if(s === 'paid_full') collected += dues;
+        else if(s === 'bnpl_active' || s === 'bnpl_complete') collected += advanceAmt;
+      });
+
+      document.getElementById('adminRosterFunded').textContent = funded + '/' + athletes.length;
+      document.getElementById('adminRosterCollected').textContent = '$' + Math.round(collected).toLocaleString();
+
+      var listEl = document.getElementById('adminRosterList');
+      if(athletes.length === 0){
+        listEl.innerHTML = '<p style="color:var(--ink-soft); font-size:14px; text-align:center; padding:32px 0;">No athletes on this roster yet.</p>';
+        return;
+      }
+      listEl.innerHTML = '';
+      var statusLabels = { paid_full:'Paid', bnpl_active:'BNPL Active', bnpl_complete:'Complete', unpaid:'Not Paid', defaulted:'Defaulted' };
+      athletes.forEach(function(a){
+        var status = a.payment_status || 'unpaid';
+        var isPaid = status !== 'unpaid' && status !== 'defaulted';
+        var row = document.createElement('div');
+        row.className = 'roster-row';
+        row.style.setProperty('--status-color', 'var(' + (isPaid ? '--paid' : '--unpaid') + ')');
+        row.style.setProperty('--status-bg', 'var(' + (isPaid ? '--paid-bg' : '--unpaid-bg') + ')');
+        row.innerHTML =
+          '<div class="roster-icon">' +
+            (isPaid
+              ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>'
+              : '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>') +
+          '</div>' +
+          '<div class="roster-name-block">' +
+            '<div class="roster-name">' + a.name + '</div>' +
+            (a.parent_email ? '<div class="roster-age">' + a.parent_email + '</div>' : '') +
+          '</div>' +
+          '<div class="roster-right">' +
+            '<div class="status-pill ' + (isPaid ? 'status-paid' : 'status-unpaid') + '">' + (statusLabels[status] || 'Not Paid') + '</div>' +
+          '</div>';
+        listEl.appendChild(row);
+      });
+    } catch(e) {
+      document.getElementById('adminRosterList').innerHTML = '<p style="color:var(--unpaid);">Error loading roster.</p>';
+    }
   }
 
   function goToClubSettings(){
