@@ -858,7 +858,7 @@
 
     <div style="display:flex; gap:10px; margin-top:8px;">
       <button class="btn btn-secondary" onclick="switchClub()" style="flex:1; font-size:13px;">Switch club</button>
-      <button class="btn btn-secondary" onclick="addTeam()" style="flex:1; font-size:13px;">+ Add team</button>
+      <button class="btn btn-secondary" onclick="showScreen('add-team')" style="flex:1; font-size:13px;">+ Add team</button>
     </div>
   </div>
 
@@ -942,8 +942,9 @@
       <div class="advance-footnote" id="advanceBnplFootnote">Hawks Travel Basketball gets paid in full before the season starts — PlayFund and its lending partner take on collection risk and earn a 5% financing fee for advancing the balance.</div>
     </div>
 
-    <div class="roster-section-label">Roster &middot; 10 athletes</div>
+    <div class="roster-section-label">Roster &middot; 0 athletes</div>
     <div id="rosterList"></div>
+    <button class="btn btn-secondary" onclick="showAddAthleteScreen()" style="margin-top:12px;">+ Add athlete</button>
   </div>
 
   <!-- SCREEN: parent home -->
@@ -1261,6 +1262,70 @@
     <p class="settings-placeholder-note">This is a shell for illustrative purposes — settings aren't functional in this mockup.</p>
   </div>
 
+  <!-- SCREEN: add team (club admin) -->
+  <div class="screen" id="screen-add-team">
+    <div class="eyebrow">Sports Club</div>
+    <h1 class="title">Add a team</h1>
+    <p class="subtitle">Add a new team to <span id="addTeamClubName">Basketball Club</span>. They'll appear on your club overview immediately.</p>
+
+    <div class="field">
+      <label>Team name</label>
+      <input type="text" id="addTeamName" placeholder="e.g. 10U Travel" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Age group</label>
+      <input type="text" id="addTeamAge" placeholder="e.g. 10U" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Season dues ($)</label>
+      <input type="number" id="addTeamDues" placeholder="950" inputmode="numeric">
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Season start</label>
+        <input type="date" id="addTeamStart">
+      </div>
+      <div class="field">
+        <label>Season end</label>
+        <input type="date" id="addTeamEnd">
+      </div>
+    </div>
+    <div class="field">
+      <label>Dues due date</label>
+      <input type="date" id="addTeamDue">
+    </div>
+    <p id="addTeamError" style="font-size:12.5px; color:var(--unpaid); min-height:16px; margin:4px 0 12px;"></p>
+    <div class="footer-spacer"></div>
+    <button class="btn btn-primary" onclick="submitAddTeam()">Add team</button>
+  </div>
+
+  <!-- SCREEN: add athlete (club admin, from roster screen) -->
+  <div class="screen" id="screen-add-athlete-admin">
+    <div class="eyebrow">Sports Club</div>
+    <h1 class="title">Add an athlete</h1>
+    <p class="subtitle">Add an athlete to <span id="addAthleteTeamName">this team</span>. Their parent can then use the club code to set up payment.</p>
+
+    <div class="field">
+      <label>Athlete name</label>
+      <input type="text" id="addAthleteAdminName" placeholder="e.g. Jordan Smith" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Age</label>
+      <input type="number" id="addAthleteAdminAge" placeholder="14" inputmode="numeric">
+    </div>
+    <div class="field">
+      <label>Parent email</label>
+      <input type="email" id="addAthleteAdminEmail" placeholder="parent@email.com" autocomplete="off">
+    </div>
+    <div class="field">
+      <label>Parent phone (optional)</label>
+      <input type="tel" id="addAthleteAdminPhone" placeholder="(804) 555-0123" autocomplete="off">
+    </div>
+    <p id="addAthleteAdminError" style="font-size:12.5px; color:var(--unpaid); min-height:16px; margin:4px 0 12px;"></p>
+    <div class="footer-spacer"></div>
+    <button class="btn btn-primary" onclick="submitAddAthleteAdmin()">Add athlete</button>
+  </div>
+
 </div>
 
 <!-- Stripe payment interstitial — opens Stripe checkout in a new tab -->
@@ -1489,8 +1554,126 @@ var usStates = ["Virginia"];
   }
 
   function addTeam(){
-    // Shell: acknowledge the action — real team creation would need backend support.
-    alert('Add team — this feature would let a club director create a new age-group team, set season dues, and generate a team PIN. Coming soon!');
+    showScreen('add-team');
+  }
+
+  function showAddTeamScreen(){
+    var c = state.club;
+    if(c) document.getElementById('addTeamClubName').textContent = c.name;
+    document.getElementById('addTeamName').value = '';
+    document.getElementById('addTeamAge').value = '';
+    document.getElementById('addTeamDues').value = '';
+    document.getElementById('addTeamStart').value = '';
+    document.getElementById('addTeamEnd').value = '';
+    document.getElementById('addTeamDue').value = '';
+    document.getElementById('addTeamError').textContent = '';
+    showScreen('add-team');
+  }
+
+  async function submitAddTeam(){
+    var c = state.club;
+    var name    = document.getElementById('addTeamName').value.trim();
+    var age     = document.getElementById('addTeamAge').value.trim();
+    var dues    = parseFloat(document.getElementById('addTeamDues').value);
+    var start   = document.getElementById('addTeamStart').value;
+    var end     = document.getElementById('addTeamEnd').value;
+    var dueDate = document.getElementById('addTeamDue').value;
+    var errEl   = document.getElementById('addTeamError');
+
+    if(!name)        { errEl.textContent = 'Team name is required.'; return; }
+    if(!dues || dues <= 0) { errEl.textContent = 'Enter a valid dues amount.'; return; }
+    if(!c)           { errEl.textContent = 'No club loaded. Please log in again.'; return; }
+
+    errEl.textContent = 'Saving…';
+
+    try {
+      var res = await fetch(WORKER_URL + '/team', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          club_id:       c.id,
+          club_code:     c.code,
+          name:          name,
+          age_group:     age || null,
+          dues_cents:    Math.round(dues * 100),
+          season_start:  start || null,
+          season_end:    end || null,
+          dues_due_date: dueDate || null
+        })
+      });
+      var data = await res.json();
+      if(!res.ok) { errEl.textContent = data.error || 'Failed to add team.'; return; }
+
+      // Add new team to local club state and refresh
+      var newTeam = Object.assign({}, data.team, {
+        dues: dues,
+        athletes: [],
+        start: formatDate(start),
+        end: formatDate(end),
+        due: formatDate(dueDate)
+      });
+      c.teams.push(newTeam);
+      // Invalidate cache so next login fetches fresh data
+      delete clubCache[c.code];
+      errEl.textContent = '';
+      openClubOverview();
+    } catch(e) {
+      errEl.textContent = 'Network error. Please try again.';
+    }
+  }
+
+  function showAddAthleteScreen(){
+    var team = state.team;
+    if(team) document.getElementById('addAthleteTeamName').textContent = team.name;
+    document.getElementById('addAthleteAdminName').value = '';
+    document.getElementById('addAthleteAdminAge').value = '';
+    document.getElementById('addAthleteAdminEmail').value = '';
+    document.getElementById('addAthleteAdminPhone').value = '';
+    document.getElementById('addAthleteAdminError').textContent = '';
+    showScreen('add-athlete-admin');
+  }
+
+  async function submitAddAthleteAdmin(){
+    var c    = state.club;
+    var team = state.team;
+    var name  = document.getElementById('addAthleteAdminName').value.trim();
+    var age   = document.getElementById('addAthleteAdminAge').value.trim();
+    var email = document.getElementById('addAthleteAdminEmail').value.trim();
+    var phone = document.getElementById('addAthleteAdminPhone').value.trim();
+    var errEl = document.getElementById('addAthleteAdminError');
+
+    if(!name)  { errEl.textContent = 'Athlete name is required.'; return; }
+    if(!email) { errEl.textContent = 'Parent email is required.'; return; }
+    if(!c || !team) { errEl.textContent = 'No team loaded. Go back and try again.'; return; }
+
+    errEl.textContent = 'Saving…';
+
+    try {
+      var res = await fetch(WORKER_URL + '/athlete', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          club_code:     c.code,
+          team_id:       team.id,
+          athlete_name:  name,
+          athlete_age:   age ? parseInt(age) : null,
+          parent_email:  email,
+          parent_phone:  phone || null
+        })
+      });
+      var data = await res.json();
+      if(!res.ok){ errEl.textContent = data.error || 'Failed to add athlete.'; return; }
+
+      // Add athlete to local team state
+      var newAthlete = Object.assign({ payment_status: 'unpaid', payment_method: null }, data.athlete);
+      if(!team.athletes) team.athletes = [];
+      team.athletes.push(newAthlete);
+      delete clubCache[c.code];
+      errEl.textContent = '';
+      openRoster(); // return to roster with new athlete visible
+    } catch(e) {
+      errEl.textContent = 'Network error. Please try again.';
+    }
   }
 
   // ---------- sport visual mapping (color-coded badges, per card design pattern) ----------
@@ -1514,28 +1697,17 @@ var usStates = ["Virginia"];
 
   // Computes a deterministic roster + funded/collected summary for one team.
   function teamSummary(club, team){
-    var seed = (club.id + 1) * 9973 + (team.id + 1) * 131;
-    var roster = seededRoster(seed);
-    var dues = team.dues;
-    var advanceRate = 0.95;
-    var advanceAmt = Math.round(dues * advanceRate);
+    var roster = team.athletes || [];
+    var dues = team.dues || (team.dues_cents / 100);
+    var advanceAmt = Math.round(dues * 0.95);
     var fundedCount = 0, collected = 0;
     roster.forEach(function(r){
-      // "Funded" = PlayFund/lending partner has secured this athlete's spot already.
-      // BNPL athletes are funded the moment the plan is set up, regardless of collection status,
-      // since the club was already paid upfront. Paid-in-full athletes are "funded" once they've
-      // actually paid (status === 'paid'), since no advance was made on their behalf.
-      var isFunded = r.payMethod === 'bnpl' || r.status === 'paid';
+      var status = r.payment_status || 'unpaid';
+      var method = r.payment_method || null;
+      var isFunded = status === 'paid_full' || status === 'bnpl_active' || status === 'bnpl_complete';
       if(isFunded) fundedCount++;
-
-      // "Collected" = money that has actually landed in the club's account, i.e. payouts
-      // already made to the club — not family repayment progress (that's PlayFund's own
-      // receivable, invisible to the club). A BNPL athlete's advance is deposited in full
-      // the moment the plan is set up, regardless of where the family is in repayment.
-      // A paid-in-full athlete's dues land in the club's account only once paid in full,
-      // since there's no PlayFund advance behind that payment.
-      if(r.payMethod === 'bnpl') collected += advanceAmt;
-      else if(r.status === 'paid') collected += dues;
+      if(method === 'bnpl_active' || method === 'klarna') collected += advanceAmt;
+      else if(status === 'paid_full') collected += dues;
     });
     return { roster: roster, dues: dues, advanceAmt: advanceAmt, fundedCount: fundedCount, totalCount: roster.length, collected: collected };
   }
@@ -1597,57 +1769,80 @@ var usStates = ["Virginia"];
 
     document.getElementById('rosterClubName').textContent = c.name + ' \u2014 ' + team.name;
     document.getElementById('rosterLocation').textContent = c.city;
-    document.getElementById('seasonStart').textContent = team.start;
-    document.getElementById('seasonEnd').textContent = team.end;
-    document.getElementById('duesDate').textContent = team.due;
+    document.getElementById('seasonStart').textContent = team.start || formatDate(team.season_start);
+    document.getElementById('seasonEnd').textContent = team.end || formatDate(team.season_end);
+    document.getElementById('duesDate').textContent = team.due || formatDate(team.dues_due_date);
     document.getElementById('rosterDuesAmt').textContent = '$' + dues.toLocaleString();
 
-    // Paid in Full box: club gets the full dues amount, no fee, since nothing was advanced.
     document.getElementById('advanceFullFamilyAmt').textContent = '$' + dues.toLocaleString();
     document.getElementById('advanceFullClubAmt').textContent = '$' + dues.toLocaleString();
     document.getElementById('advanceFullFootnote').textContent =
       c.name + ' receives the full season dues directly from the family — no PlayFund fee, since nothing was advanced.';
 
-    // BNPL box: club gets the discounted advance, with PlayFund/lending partner earning the 5% fee.
     var bnplBox = document.querySelectorAll('.advance-card')[1];
-    bnplBox.querySelector('.advance-amt').textContent = '$' + dues.toLocaleString();
-    bnplBox.querySelector('.advance-amt.small').textContent = '$' + advanceAmt.toLocaleString();
+    if(bnplBox){
+      bnplBox.querySelector('.advance-amt').textContent = '$' + dues.toLocaleString();
+      var smallAmt = bnplBox.querySelector('.advance-amt.small');
+      if(smallAmt) smallAmt.textContent = '$' + advanceAmt.toLocaleString();
+    }
     document.getElementById('advanceBnplFootnote').textContent =
       c.name + ' gets paid in full before the season starts — PlayFund and its lending partner take on collection risk and earn a 5% financing fee for advancing the balance.';
 
-    var listEl = document.getElementById('rosterList');
-    listEl.innerHTML = '';
-    var statusIcons = {
-      paid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
-      unpaid: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
-    };
-    var statusColorVar = { paid: '--paid', unpaid: '--unpaid' };
-    var statusBgVar = { paid: '--paid-bg', unpaid: '--unpaid-bg' };
-    roster.forEach(function(r){
-      var statusLabel = r.status === 'paid' ? 'Paid' : 'Not Paid';
-      var statusClass = 'status-' + r.status;
-      var methodTag = r.payMethod ? '<div class="pay-method-tag">' + (r.payMethod === 'bnpl' ? 'BNPL' : 'Paid in Full') + '</div>' : '';
-      var row = document.createElement('div');
-      row.className = 'roster-row';
-      row.style.setProperty('--status-color', 'var(' + statusColorVar[r.status] + ')');
-      row.style.setProperty('--status-bg', 'var(' + statusBgVar[r.status] + ')');
-      row.innerHTML =
-        '<div class="roster-icon">' + statusIcons[r.status] + '</div>' +
-        '<div class="roster-name-block">' +
-          '<div class="roster-name">' + r.name + '</div>' +
-          '<div class="roster-age">Age ' + r.age + '</div>' +
-        '</div>' +
-        '<div class="roster-right">' +
-          '<div class="status-pill ' + statusClass + '">' + statusLabel + '</div>' +
-          methodTag +
-        '</div>';
-      listEl.appendChild(row);
-    });
+    // Update roster section label
+    var labelEl = document.querySelector('#screen-roster .roster-section-label');
+    if(labelEl) labelEl.textContent = 'Roster \u00b7 ' + roster.length + ' athlete' + (roster.length !== 1 ? 's' : '');
 
-    var pct = Math.round((summary.fundedCount / summary.totalCount) * 100);
-    document.getElementById('statFundedFraction').textContent = summary.fundedCount + '/' + summary.totalCount;
+    var pct = roster.length ? Math.round((summary.fundedCount / roster.length) * 100) : 0;
+    document.getElementById('statFundedFraction').textContent = summary.fundedCount + '/' + roster.length;
     document.getElementById('statCollected').textContent = '$' + Math.round(summary.collected).toLocaleString();
     document.getElementById('statBarFill').style.width = pct + '%';
+
+    var listEl = document.getElementById('rosterList');
+    listEl.innerHTML = '';
+
+    if(roster.length === 0){
+      listEl.innerHTML = '<div style="text-align:center; padding:32px 0; color:var(--ink-soft); font-size:14px;">' +
+        'No athletes on this roster yet.<br>Tap below to add your first athlete.' +
+        '</div>';
+    } else {
+      var statusIcons = {
+        paid_full:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+        bnpl_active:   '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+        bnpl_complete: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>',
+        unpaid:        '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>',
+        defaulted:     '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+      };
+      var statusLabels = {
+        paid_full: 'Paid', bnpl_active: 'BNPL Active',
+        bnpl_complete: 'Complete', unpaid: 'Not Paid', defaulted: 'Defaulted'
+      };
+      var statusColorVar = { paid_full: '--paid', bnpl_active: '--paid', bnpl_complete: '--paid', unpaid: '--unpaid', defaulted: '--unpaid' };
+      var statusBgVar    = { paid_full: '--paid-bg', bnpl_active: '--paid-bg', bnpl_complete: '--paid-bg', unpaid: '--unpaid-bg', defaulted: '--unpaid-bg' };
+
+      roster.forEach(function(r){
+        var status = r.payment_status || 'unpaid';
+        var statusLabel = statusLabels[status] || 'Not Paid';
+        var statusClass = 'status-' + (status === 'unpaid' ? 'unpaid' : 'paid');
+        var methodTag = r.payment_method
+          ? '<div class="pay-method-tag">' + (r.payment_method === 'klarna' ? 'Klarna' : r.payment_method === 'ach' ? 'ACH' : 'Card') + '</div>' : '';
+        var row = document.createElement('div');
+        row.className = 'roster-row';
+        row.style.setProperty('--status-color', 'var(' + (statusColorVar[status] || '--unpaid') + ')');
+        row.style.setProperty('--status-bg', 'var(' + (statusBgVar[status] || '--unpaid-bg') + ')');
+        row.innerHTML =
+          '<div class="roster-icon">' + (statusIcons[status] || statusIcons.unpaid) + '</div>' +
+          '<div class="roster-name-block">' +
+            '<div class="roster-name">' + r.name + '</div>' +
+            (r.age ? '<div class="roster-age">Age ' + r.age + '</div>' : '') +
+          '</div>' +
+          '<div class="roster-right">' +
+            '<div class="status-pill ' + statusClass + '">' + statusLabel + '</div>' +
+            methodTag +
+          '</div>';
+        listEl.appendChild(row);
+      });
+    }
+
     showScreen('roster');
   }
 
