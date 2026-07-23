@@ -377,7 +377,7 @@
   .pay-option.featured .pay-option-icon { background: var(--fund-green-fill); color: var(--white); }
 
   .due-banner {
-    background: var(--paper-dim); border-radius: 14px; padding: 16px 18px;
+    background: var(--paper-dim); border-radius: 14px; padding: 16px 18px 2px;
     margin-bottom: 16px;
   }
   .due-banner-top { display: flex; justify-content: space-between; align-items: flex-start; }
@@ -387,18 +387,17 @@
   /* breakdown inside due-banner */
   .breakdown-toggle {
     display: flex; align-items: center; justify-content: space-between;
-    padding: 10px 0 0 0; margin-top: 10px;
+    padding: 8px 0 0 0; margin-top: 6px;
     border-top: 1px solid var(--line);
     background: none; width: 100%; border-radius: 0;
     border-left: none; border-right: none; border-bottom: none;
     font-family: 'Inter', sans-serif;
   }
   .breakdown-panel {
-    display: none; margin-top: 6px;
-    border-radius: 0;
-    padding: 0; margin-bottom: 0;
+    display: none; margin-top: 4px; margin-bottom: 0;
+    border-radius: 0; padding: 0;
   }
-  .breakdown-panel.open { display: block; }
+  .breakdown-panel.open { display: block; padding-bottom: 2px; }
 
   /* ---------- Form fields ---------- */
   .field { margin-bottom: 14px; }
@@ -507,7 +506,53 @@
   .tournament-meta { font-size: 11.5px; color: var(--ink-soft); margin-top: 2px; }
   .breakdown-row-amt { font-weight: 700; font-size: 13.5px; color: var(--ink); }
 
-  /* ---------- Athlete cards (parent home / settings) ---------- */
+  /* ---------- Payment sections (athlete detail) ---------- */
+  .payment-section {
+    background: var(--white); border: 1px solid var(--line);
+    border-radius: 16px; padding: 18px; margin-bottom: 14px;
+  }
+  .payment-section-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 12px;
+  }
+  .payment-section-icon {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: var(--paper-dim); color: var(--ink);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .payment-section-icon svg { width: 18px; height: 18px; }
+  .payment-section-title { font-weight: 700; font-size: 15px; color: var(--ink); }
+  .payment-section-subtitle { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .payment-instruction {
+    font-size: 13px; color: var(--ink-soft); line-height: 1.5; margin-bottom: 14px;
+  }
+  .payment-instruction b { color: var(--ink); }
+
+  .klarna-steps { margin-bottom: 14px; }
+  .klarna-step {
+    display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px;
+  }
+  .klarna-step:last-child { margin-bottom: 0; }
+  .klarna-step-num {
+    width: 22px; height: 22px; border-radius: 50%;
+    background: var(--ink); color: var(--white);
+    font-size: 11px; font-weight: 700;
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px;
+  }
+  .klarna-step-text { font-size: 13px; color: var(--ink-soft); line-height: 1.45; }
+  .klarna-step-text b { color: var(--ink); }
+
+  .payment-btn-row { display: flex; gap: 10px; }
+  .payment-method-btn {
+    flex: 1; display: flex; align-items: center; justify-content: center; gap: 7px;
+    padding: 12px 10px; border-radius: 10px; border: 1.5px solid var(--ink);
+    background: var(--ink); color: var(--white);
+    font-family: 'Inter', sans-serif; font-weight: 700; font-size: 13px;
+    cursor: pointer; transition: opacity 0.15s;
+  }
+  .payment-method-btn:active { opacity: 0.85; }
+  .payment-method-btn svg { width: 16px; height: 16px; }
+
+
   .athlete-card {
     display: flex; align-items: center; gap: 14px;
     background: var(--white); border: 1px solid var(--line); border-left: 4px solid var(--fund-green);
@@ -946,15 +991,13 @@
   <div class="screen" id="screen-athlete-detail">
     <div class="eyebrow">Parent</div>
     <h1 class="title" id="athleteDetailTitle" style="margin-bottom:0;">Season dues</h1>
-    <p class="subtitle">Choose how you'd like to handle this season's payment.</p>
+    <p class="subtitle">Choose how you'd like to pay — you'll complete payment securely on Stripe's checkout page.</p>
 
     <div class="due-banner">
       <div class="due-banner-top">
         <div class="due-banner-label" id="parentClubLabel">Hawks Travel Basketball &middot; Fall season</div>
         <div class="due-banner-amt" id="parentDuesAmt">$1,000</div>
       </div>
-
-      <!-- Collapsible cost breakdown — lives inside the banner bubble -->
       <button class="breakdown-toggle" onclick="toggleBreakdown()" id="breakdownToggle">
         <span class="breakdown-toggle-label">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
@@ -962,81 +1005,87 @@
         </span>
         <svg class="breakdown-chevron" id="breakdownChevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
       </button>
-      <div class="breakdown-panel" id="breakdownPanel">
-        <!-- populated by JS -->
-      </div>
+      <div class="breakdown-panel" id="breakdownPanel"></div>
     </div>
 
-    <div class="pay-option" onclick="showScreen('paynow')">
-      <div class="pay-option-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-      </div>
-      <div class="pay-option-body">
-        <div class="pay-option-top">
-          <div>
-            <div class="pay-option-title">Pay now</div>
-            <div class="pay-option-desc">One-time payment by card or bank transfer. Nothing financed.</div>
-          </div>
+    <!-- Option 1: Pay in full -->
+    <div class="payment-section">
+      <div class="payment-section-header">
+        <div class="payment-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+        </div>
+        <div>
+          <div class="payment-section-title">Pay In Full</div>
+          <div class="payment-section-subtitle">Full season dues charged today</div>
         </div>
       </div>
+      <div class="payment-instruction">
+        On Stripe's checkout, enter your card or bank details and tap <b>Pay</b>. The full season dues will be charged once.
+      </div>
+      <div class="payment-btn-row">
+        <button class="payment-method-btn" onclick="openStripeCheckout('pay-card', 'confirm-now', 'full')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Pay by Card
+        </button>
+        <button class="payment-method-btn" onclick="openStripeCheckout('pay-ach', 'confirm-now', 'full')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          Pay by ACH
+        </button>
+      </div>
     </div>
 
-    <div class="pay-option featured" onclick="showScreen('terms')">
-      <div class="pay-option-icon">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>
-      </div>
-      <div class="pay-option-body">
-        <div class="pay-option-top">
-          <div>
-            <div class="pay-option-title">Pay in full via PlayFund</div>
-            <div class="pay-option-desc">Club gets paid in full today. You spread the cost over weekly installments.</div>
-          </div>
-          <div class="pay-option-tag">Most popular</div>
+    <!-- Option 2: Pay in installments via Klarna -->
+    <div class="payment-section">
+      <div class="payment-section-header">
+        <div class="payment-section-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><line x1="8" y1="14" x2="8" y2="14"/><line x1="12" y1="14" x2="12" y2="14"/><line x1="16" y1="14" x2="16" y2="14"/></svg>
+        </div>
+        <div>
+          <div class="payment-section-title">Pay In Installments</div>
+          <div class="payment-section-subtitle">Split dues over time via Klarna</div>
         </div>
       </div>
-    </div>
-
-    <button class="btn btn-secondary" onclick="openPaymentHistory()" style="margin-top:4px;">View payment history</button>
-  </div>
-
-  <!-- SCREEN: pay now method -->
-  <div class="screen" id="screen-paynow">
-    <div class="eyebrow">Pay now</div>
-    <h1 class="title">Choose a method</h1>
-    <p class="subtitle" id="paynowSub">$1,000 due in full today.</p>
-
-    <div class="method-toggle">
-      <button class="method-btn active" id="methodCard" onclick="setMethod('card')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
-        Credit Card
-      </button>
-      <button class="method-btn" id="methodAch" onclick="setMethod('ach')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
-        Bank (ACH)
-      </button>
-    </div>
-
-    <div id="cardFields">
-      <div class="fee-breakdown">
-        <div class="fee-row"><span>Processing fee</span><span>3.0%</span></div>
-        <div class="fee-row fee-total"><span>Total charged today</span><b id="cardFeeTotal">$1,030.00</b></div>
+      <div class="klarna-steps">
+        <div class="klarna-step">
+          <div class="klarna-step-num">1</div>
+          <div class="klarna-step-text">On Stripe's checkout page, select <b>Klarna</b> as the payment method to pay over time.</div>
+        </div>
+        <div class="klarna-step">
+          <div class="klarna-step-num">2</div>
+          <div class="klarna-step-text">Klarna will open and show you available payment plans, typically <b>4 bi-weekly interest-free payments</b>. Select the plan that works for you.</div>
+        </div>
+        <div class="klarna-step">
+          <div class="klarna-step-num">3</div>
+          <div class="klarna-step-text">Complete your Klarna authorization. No interest on on-time payments.</div>
+        </div>
+      </div>
+      <div class="payment-btn-row">
+        <button class="payment-method-btn" onclick="openStripeCheckout('klarna', 'confirm-terms', 'bnpl')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          Card
+        </button>
+        <button class="payment-method-btn" onclick="openStripeCheckout('klarna', 'confirm-terms', 'bnpl')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+          ACH
+        </button>
       </div>
     </div>
 
-    <div id="achFields" style="display:none;">
-      <div class="fee-breakdown">
-        <div class="fee-row"><span>Processing fee</span><span>1.0%</span></div>
-        <div class="fee-row fee-total"><span>Total charged today</span><b id="achFeeTotal">$1,010.00</b></div>
-      </div>
-    </div>
-
-    <p style="font-size:12px; color:var(--ink-soft); line-height:1.5; margin:14px 2px 0;">
-      You'll enter your payment details securely on the next screen, powered by Stripe.
-    </p>
-
-    <div class="footer-spacer"></div>
-    <button class="btn btn-primary" onclick="initiatePayNow()">Pay <span id="paynowBtnAmt">$1,000</span></button>
+    <button class="btn btn-secondary" onclick="openPaymentHistory()" style="margin-top:8px;">View payment history</button>
   </div>
+
+  <!-- SCREEN: pay now (hidden shell — keeps DOM elements updateFeeBreakdowns needs) -->
+  <div class="screen" id="screen-paynow" style="display:none;">
+    <span id="paynowSub"></span>
+    <span id="cardFeeTotal"></span>
+    <span id="achFeeTotal"></span>
+    <span id="paynowBtnAmt"></span>
+    <span id="methodCard"></span>
+    <span id="methodAch"></span>
+    <span id="cardFields"></span>
+    <span id="achFields"></span>
+  </div>
+
 
   <!-- SCREEN: terms — payment schedule selection -->
   <div class="screen sezzle-screen" id="screen-terms">
@@ -1287,7 +1336,51 @@ var usStates = ["Virginia"];
     };
   }
 
+  var WORKER_URL = 'https://playfund-worker.jacksonwwatkins.workers.dev';
+
   var state = { club: null, team: null, selectedState: null, history: [], athletes: [], activeAthleteId: null };
+
+  // Cache for clubs loaded from the Worker — avoids re-fetching on every screen
+  var clubCache = {};
+
+  // Fetch club data from the Worker and cache it
+  async function fetchClub(code) {
+    code = code.toUpperCase();
+    if (clubCache[code]) return clubCache[code];
+    try {
+      var res = await fetch(WORKER_URL + '/club/' + code);
+      if (!res.ok) return null;
+      var data = await res.json();
+      if (!data.club) return null;
+      // Normalize to match the shape the rest of the app expects
+      var club = data.club;
+      club.teams = (club.teams || []).map(function(t) {
+        return Object.assign({}, t, {
+          // App expects string dates like "Sept 6", Worker returns "2026-09-06"
+          start: formatDate(t.season_start),
+          end:   formatDate(t.season_end),
+          due:   formatDate(t.dues_due_date),
+          dues:  t.dues_cents / 100
+        });
+      });
+      clubCache[code] = club;
+      return club;
+    } catch(e) {
+      console.error('fetchClub error:', e);
+      return null;
+    }
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso + 'T00:00:00');
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  }
+
+  // Also keep local findClubByCode pointing at the cache for backward compat
+  function findClubByCode(code) {
+    return clubCache[code.toUpperCase()] || null;
+  }
 
   // ---------- splash ----------
   window.addEventListener('load', function(){
@@ -1346,19 +1439,27 @@ var usStates = ["Virginia"];
     if(el) el.textContent = '';
   }
 
-  function submitClubLogin(){
+  async function submitClubLogin(){
     var code = (document.getElementById('clubCodeInput').value || '').trim().toUpperCase();
-    var pin = (document.getElementById('clubPinInput').value || '').trim();
-    var club = clubs.find(function(c){ return c.code === code; });
-    if(!club){
-      document.getElementById('clubLoginError').textContent = "Club code not found. Try BBALL1.";
-      return;
-    }
+    var pin  = (document.getElementById('clubPinInput').value || '').trim();
+    var errEl = document.getElementById('clubLoginError');
+
+    if(!code){ errEl.textContent = 'Enter your club code.'; return; }
     if(pin.length !== 4 || !/^\d{4}$/.test(pin)){
-      document.getElementById('clubLoginError').textContent = "PIN must be 4 digits. Use any 4-digit PIN for the demo.";
-      return;
+      errEl.textContent = 'PIN must be 4 digits.'; return;
     }
-    try { localStorage.setItem(CLUB_SESSION_KEY, JSON.stringify({ clubId: club.id, pin: pin })); } catch(e){}
+
+    errEl.textContent = 'Loading…';
+    var club = await fetchClub(code);
+    if(!club){
+      errEl.textContent = 'Club code not found. Try BBALL1.'; return;
+    }
+
+    // PIN check — for pilot we store plain text PIN in the clubs table
+    // (will switch to bcrypt once we add server-side auth)
+    // For now any 4-digit PIN is accepted since PIN is stored as plain text
+    errEl.textContent = '';
+    try { localStorage.setItem(CLUB_SESSION_KEY, JSON.stringify({ clubCode: code, pin: pin })); } catch(e){}
     state.club = club;
     openClubOverview();
   }
@@ -1366,9 +1467,12 @@ var usStates = ["Virginia"];
   function enterClubMode(){
     var saved = null;
     try { saved = JSON.parse(localStorage.getItem(CLUB_SESSION_KEY) || 'null'); } catch(e){}
-    if(saved && saved.clubId != null){
-      var club = clubs.find(function(c){ return c.id === saved.clubId; });
-      if(club){ state.club = club; openClubOverview(); return; }
+    if(saved && saved.clubCode){
+      fetchClub(saved.clubCode).then(function(club){
+        if(club){ state.club = club; openClubOverview(); }
+        else { showScreen('club-select'); }
+      });
+      return;
     }
     showScreen('club-select');
   }
@@ -1712,18 +1816,21 @@ var usStates = ["Virginia"];
     document.getElementById('codeError').textContent = '';
   }
 
-  function submitCode(){
+  async function submitCode(){
     var name = document.getElementById('athleteNameInput').value.trim();
-    var raw = document.getElementById('codeInput').value;
-    if(!name){
-      document.getElementById('codeError').textContent = "Enter the athlete's name first.";
-      return;
-    }
-    var club = findClubByCode(raw);
+    var raw  = document.getElementById('codeInput').value.trim();
+    var errEl = document.getElementById('codeError');
+
+    if(!name){ errEl.textContent = "Enter the athlete's name first."; return; }
+    if(!raw)  { errEl.textContent = "Enter the club code."; return; }
+
+    errEl.textContent = 'Looking up club…';
+    var club = await fetchClub(raw);
     if(!club){
-      document.getElementById('codeError').textContent = "We couldn't find a club with that code. Double-check with your club, or try a demo code below.";
+      errEl.textContent = "We couldn't find a club with that code. Try BBALL1.";
       return;
     }
+
     var team = pickTeamForAthlete(club, name);
     state.athletes = loadAthletes();
     var athlete = {
@@ -1731,7 +1838,7 @@ var usStates = ["Virginia"];
       name: name,
       clubId: club.id,
       teamId: team.id,
-      paymentStatus: null,   // null = not yet chosen; 'full' or 'bnpl' once chosen
+      paymentStatus: null,
       termWeeks: null,
       history: null
     };
@@ -1740,14 +1847,20 @@ var usStates = ["Virginia"];
 
     document.getElementById('athleteNameInput').value = '';
     document.getElementById('codeInput').value = '';
-    clearCodeError();
+    errEl.textContent = '';
     renderAthleteList();
     showScreen('parent-home');
   }
 
   function getAthleteClubTeam(athlete){
-    var club = clubs.find(function(c){ return c.id === athlete.clubId; });
-    var team = club ? club.teams.find(function(t){ return t.id === athlete.teamId; }) : null;
+    // Look in cache first (populated when parent entered club code)
+    var club = null;
+    Object.values(clubCache).forEach(function(c){
+      if(c.id === athlete.clubId) club = c;
+    });
+    // Fallback to hardcoded clubs array for backward compat
+    if(!club) club = clubs.find(function(c){ return String(c.id) === String(athlete.clubId); });
+    var team = club ? (club.teams || []).find(function(t){ return String(t.id) === String(athlete.teamId); }) : null;
     return { club: club, team: team };
   }
 
@@ -1906,78 +2019,75 @@ var usStates = ["Virginia"];
   }
 
   // ---------- Stripe payment links ----------
-  // Test mode links — swap to live links when ready for real pilot.
+  // Test mode — swap for live links when ready for pilot.
   var STRIPE_LINKS = {
-    'pay-card':   'https://buy.stripe.com/test_5kQcN4gYt1bhb1LgIB3Je00',
-    'pay-ach':    'https://buy.stripe.com/test_3cIcN4bE98DJedXcsl3Je01',
-    'bnpl-8':     'https://buy.stripe.com/test_3cI00i6jP3jp2vfeAt3Je02',
-    'bnpl-12':    'https://buy.stripe.com/test_14A4gy23z07d0n763X3Je03'
-  };
-
-  var STRIPE_DESCS = {
-    'pay-card':  'One-time card payment · Season dues',
-    'pay-ach':   'One-time ACH bank transfer · Season dues',
-    'bnpl-8':    '8 weekly installments · First payment today',
-    'bnpl-12':   '12 weekly installments · First payment today'
+    'pay-card': 'https://buy.stripe.com/test_5kQcN4gYt1bhb1LgIB3Je00',
+    'pay-ach':  'https://buy.stripe.com/test_3cIcN4bE98DJedXcsl3Je01',
+    'klarna':   'https://buy.stripe.com/test_5kQcN4gYt1bhb1LgIB3Je00'
+    // ↑ Replace 'klarna' with a Stripe Payment Link that has Klarna enabled
+    // in your Stripe dashboard → Settings → Payment methods → Klarna
   };
 
   var stripeReturnScreen = null;
   var stripePaymentType  = null;
 
-  function openStripeModal(linkKey, returnScreen, paymentType, termWeeks){
+  // Called from the new payment section buttons on the athlete detail screen.
+  // linkKey: 'pay-card' | 'pay-ach' | 'klarna'
+  // returnScreen: 'confirm-now' | 'confirm-terms'
+  // paymentType: 'full' | 'bnpl'
+  function openStripeCheckout(linkKey, returnScreen, paymentType){
     var url = STRIPE_LINKS[linkKey];
-    if(!url){ console.warn('No Stripe link for:', linkKey); return; }
+    if(!url){ console.warn('PlayFund: no Stripe link configured for', linkKey); return; }
     stripeReturnScreen = returnScreen;
     stripePaymentType  = paymentType;
-    if(termWeeks) state.selectedTermWeeks = termWeeks;
 
-    // Populate interstitial content
-    document.getElementById('stripeInterstitialTitle').textContent =
-      paymentType === 'bnpl' ? 'Set up payment plan' : 'Pay now';
-    document.getElementById('stripeInterstitialDesc').innerHTML =
-      'You\'ll complete payment on <b>Stripe\'s secure checkout page</b>. ' +
-      'Tap the button below — when you\'re done, come back here to see your confirmation.<br><br>' +
-      '<span style="font-size:12px; color:var(--ink-soft);">' + (STRIPE_DESCS[linkKey] || '') + '</span>';
-    document.getElementById('stripePayBtn').href = url;
-    document.getElementById('stripeReturnBtn').style.display = 'none';
+    var isKlarna = linkKey === 'klarna';
 
-    document.getElementById('stripeModal').style.display = 'block';
+    var titleEl = document.getElementById('stripeInterstitialTitle');
+    var descEl  = document.getElementById('stripeInterstitialDesc');
+    var btnEl   = document.getElementById('stripePayBtn');
+    var retEl   = document.getElementById('stripeReturnBtn');
+    var modal   = document.getElementById('stripeModal');
+
+    if(!titleEl || !descEl || !btnEl || !retEl || !modal){
+      // Fallback: just open the link directly if the modal DOM is missing
+      window.open(url, '_blank', 'noopener');
+      return;
+    }
+
+    titleEl.textContent = isKlarna ? 'Set up installment plan' : 'Pay in full';
+    descEl.innerHTML = isKlarna
+      ? 'On Stripe\'s checkout, enter your details then tap <b>"Pay later with Klarna"</b> to select your installment plan. No interest on on-time payments.'
+      : 'On Stripe\'s checkout, enter your card or bank details and tap <b>Pay</b>. Your full season dues will be charged once.';
+    btnEl.href = url;
+    retEl.style.display = 'none';
+
+    modal.style.display = 'block';
     document.body.style.overflow = 'hidden';
   }
 
+  // Kept for backward compatibility with any remaining references
+  function initiatePayNow(){ openStripeCheckout('pay-card', 'confirm-now', 'full'); }
+  function initiateKlarna(){ openStripeCheckout('klarna', 'confirm-terms', 'bnpl'); }
+  function initiateBnpl(){   openStripeCheckout('klarna', 'confirm-terms', 'bnpl'); }
+
+  // Called when parent taps "Open Stripe checkout" — reveals the return button after a delay
   function onStripePayTapped(){
-    // After parent taps "Open Stripe checkout", show the "I've completed payment" return button
     setTimeout(function(){
-      document.getElementById('stripeReturnBtn').style.display = 'block';
+      var el = document.getElementById('stripeReturnBtn');
+      if(el) el.style.display = 'block';
     }, 1500);
   }
 
+  // Called by the × button (paymentCompleted=false) or the return button (paymentCompleted=true)
   function closeStripeModal(paymentCompleted){
-    document.getElementById('stripeModal').style.display = 'none';
+    var modal = document.getElementById('stripeModal');
+    if(modal) modal.style.display = 'none';
     document.body.style.overflow = '';
     if(paymentCompleted && stripeReturnScreen){
       if(stripePaymentType) recordAthletePayment(stripePaymentType, state.selectedTermWeeks);
       showScreen(stripeReturnScreen);
     }
-  }
-
-  // ---- Wiring: Pay Now button (card or ACH, determined by current method state) ----
-  function initiatePayNow(){
-    var method = state.paymentMethod || 'card';
-    var linkKey = method === 'ach' ? 'pay-ach' : 'pay-card';
-    openStripeModal(linkKey, 'confirm-now', 'full', null);
-  }
-
-  // ---- Wiring: BNPL Complete order (8 or 12 week, determined by term selection) ----
-  function initiateBnpl(){
-    var weeks = state.selectedTermWeeks || 8;
-    var linkKey = 'bnpl-' + weeks;
-    if(!STRIPE_LINKS[linkKey]){
-      // Fallback gracefully if a term has no link (shouldn't happen with 8+12)
-      alert('Payment link not configured for ' + weeks + '-week plan. Please select 8 or 12 weeks.');
-      return;
-    }
-    openStripeModal(linkKey, 'confirm-terms', 'bnpl', weeks);
   }
 
   // ---------- pay now method toggle ----------
@@ -1993,14 +2103,20 @@ var usStates = ["Virginia"];
     var dues = (state.parentClub && state.parentClub.dues) || 1000;
     var method = state.paymentMethod || 'card';
     var total = method === 'ach' ? dues * 1.01 : dues * 1.03;
-    document.getElementById('paynowBtnAmt').textContent = fmtUSD(total);
+    var el = document.getElementById('paynowBtnAmt');
+    if(el) el.textContent = fmtUSD(total);
   }
   function updateFeeBreakdowns(){
     var dues = (state.parentClub && state.parentClub.dues) || 1000;
-    var cardTotal = dues * 1.03; // 3.0% processing fee (card network cost + PlayFund margin, shown as one line)
-    var achTotal = dues * 1.01; // 1.0% processing fee
-    document.getElementById('cardFeeTotal').textContent = fmtUSD(cardTotal);
-    document.getElementById('achFeeTotal').textContent = fmtUSD(achTotal);
+    var cardTotal = dues * 1.03;
+    var achTotal  = dues * 1.01;
+    var ct = document.getElementById('cardFeeTotal');
+    var at = document.getElementById('achFeeTotal');
+    var ps = document.getElementById('paynowSub');
+    if(ct) ct.textContent = fmtUSD(cardTotal);
+    if(at) at.textContent = fmtUSD(achTotal);
+    syncPaynowButton();
+    if(ps) ps.textContent = '$' + dues.toLocaleString() + ' due in full today.';
     syncPaynowButton();
     document.getElementById('paynowSub').textContent = '$' + dues.toLocaleString() + ' due in full today.';
 
