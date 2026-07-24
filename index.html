@@ -576,6 +576,39 @@
   .athlete-card-static { cursor: default; }
   .athlete-card-static:active { transform: none; }
 
+  /* ---------- Admin financial panels ---------- */
+  .admin-fin-panel {
+    display: flex; gap: 12px; margin-bottom: 16px;
+  }
+  .admin-fin-card {
+    flex: 1; background: var(--paper-dim); border-radius: 12px; padding: 14px 16px;
+  }
+  .admin-fin-label {
+    font-size: 11px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: var(--ink-soft); margin-bottom: 4px;
+  }
+  .admin-fin-amount {
+    font-family: 'Anton', sans-serif; font-size: 22px; font-weight: 400; color: var(--ink);
+    line-height: 1;
+  }
+  .admin-fin-sub {
+    font-size: 11px; color: var(--ink-soft); margin-top: 3px;
+  }
+  .admin-recovery-bar {
+    margin-bottom: 20px;
+  }
+  .admin-recovery-track {
+    height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-bottom: 5px;
+  }
+  .admin-recovery-fill {
+    height: 100%; background: var(--fund-green); border-radius: 3px;
+    transition: width 0.4s ease;
+  }
+  .admin-recovery-label {
+    font-size: 11.5px; color: var(--ink-soft);
+  }
+  .admin-recovery-label b { color: var(--ink); }
+
   /* ---------- Settings shell ---------- */
   .settings-row {
     display: flex; align-items: center; gap: 14px;
@@ -800,7 +833,7 @@
         <div class="role-sub">Pay season dues</div>
       </div>
     </div>
-    <button onclick="showScreen('admin-login')" style="background:none; border:none; margin-top:20px; font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:'Inter',sans-serif;">
+    <button onclick="enterAdminMode()" style="background:none; border:none; margin-top:20px; font-size:12px; color:var(--ink-soft); cursor:pointer; font-family:'Inter',sans-serif;">
       PlayFund Admin ↗
     </button>
   </div>
@@ -1332,25 +1365,71 @@
   <!-- SCREEN: admin login -->
   <div class="screen" id="screen-admin-login">
     <div class="eyebrow">PlayFund</div>
-    <h1 class="title">Admin access</h1>
-    <p class="subtitle">Internal use only — PlayFund team access across all clubs.</p>
+    <h1 class="title">Admin sign in</h1>
+    <p class="subtitle">PlayFund team access only.</p>
+    <div class="field" style="margin-bottom:14px;">
+      <label>Email</label>
+      <input type="email" id="adminEmailInput" placeholder="you@playfund.com" autocomplete="email">
+    </div>
     <div class="field" style="margin-bottom:6px;">
-      <label>Admin passcode</label>
-      <input type="password" id="adminPasscode" placeholder="Enter passcode" autocomplete="off">
+      <label>Password</label>
+      <input type="password" id="adminPasswordInput" placeholder="Password" autocomplete="current-password">
     </div>
     <p id="adminLoginError" style="font-size:12.5px; color:var(--unpaid); min-height:16px; margin:4px 0 18px;"></p>
     <div class="footer-spacer"></div>
-    <button class="btn btn-primary" onclick="submitAdminLogin()">Sign in</button>
+    <button class="btn btn-primary" onclick="submitAdminEmailLogin()">Sign in</button>
   </div>
 
   <!-- SCREEN: admin clubs list -->
   <div class="screen" id="screen-admin-clubs">
     <div class="eyebrow">PlayFund Admin</div>
-    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:6px;">
+    <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
       <h1 class="title" style="margin-bottom:0;">All clubs</h1>
-      <button onclick="loadAdminClubs()" style="background:none; border:none; padding:6px 0; font-size:12.5px; font-weight:700; color:var(--fund-green); cursor:pointer; font-family:'Inter',sans-serif;">↻ Refresh</button>
+      <div style="display:flex; gap:12px; align-items:center;">
+        <button onclick="loadAdminClubs()" style="background:none; border:none; padding:6px 0; font-size:12.5px; font-weight:700; color:var(--fund-green); cursor:pointer; font-family:'Inter',sans-serif;">↻ Refresh</button>
+        <button onclick="adminSignOut()" style="background:none; border:none; padding:6px 0; font-size:12.5px; font-weight:700; color:var(--unpaid); cursor:pointer; font-family:'Inter',sans-serif;">Sign out</button>
+      </div>
     </div>
-    <p class="subtitle" id="adminClubsSubtitle">Loading…</p>
+
+    <!-- Rollup banner -->
+    <div class="overview-rollup" style="margin-bottom:14px;">
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminTotalClubs">—</div>
+        <div class="overview-rollup-label">Clubs</div>
+      </div>
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminTotalTeams">—</div>
+        <div class="overview-rollup-label">Teams</div>
+      </div>
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminTotalAthletes">—</div>
+        <div class="overview-rollup-label">Athletes</div>
+      </div>
+    </div>
+
+    <!-- Financial panels -->
+    <div class="admin-fin-panel">
+      <div class="admin-fin-card">
+        <div class="admin-fin-label">Fronted to clubs</div>
+        <div class="admin-fin-amount" id="adminTotalFronted">$0</div>
+        <div class="admin-fin-sub">advances disbursed</div>
+      </div>
+      <div class="admin-fin-card">
+        <div class="admin-fin-label">Collected from families</div>
+        <div class="admin-fin-amount" id="adminTotalCollected">$0</div>
+        <div class="admin-fin-sub">payments received</div>
+      </div>
+    </div>
+
+    <!-- Recovery bar -->
+    <div class="admin-recovery-bar">
+      <div class="admin-recovery-track">
+        <div class="admin-recovery-fill" id="adminTotalRecoveryBar" style="width:0%"></div>
+      </div>
+      <div class="admin-recovery-label" id="adminTotalRecoveryLabel"><b>0%</b> of advances recovered</div>
+    </div>
+
+    <div class="roster-section-label">Clubs</div>
     <div id="adminClubList"></div>
   </div>
 
@@ -1359,7 +1438,9 @@
     <div class="eyebrow">PlayFund Admin</div>
     <h1 class="title" id="adminClubDetailName">Club</h1>
     <p class="subtitle" id="adminClubDetailSub">City · Sport</p>
-    <div class="overview-rollup" style="margin-bottom:20px;">
+
+    <!-- Rollup banner -->
+    <div class="overview-rollup" style="margin-bottom:14px;">
       <div class="overview-rollup-stat">
         <div class="overview-rollup-num" id="adminDetailTeams">0</div>
         <div class="overview-rollup-label">Teams</div>
@@ -1369,10 +1450,33 @@
         <div class="overview-rollup-label">Athletes</div>
       </div>
       <div class="overview-rollup-stat">
-        <div class="overview-rollup-num" id="adminDetailFunded">0</div>
-        <div class="overview-rollup-label">Funded</div>
+        <div class="overview-rollup-num" id="adminDetailFunded">0/0</div>
+        <div class="overview-rollup-label">Athletes Funded</div>
       </div>
     </div>
+
+    <!-- Financial panels -->
+    <div class="admin-fin-panel">
+      <div class="admin-fin-card">
+        <div class="admin-fin-label">Fronted to club</div>
+        <div class="admin-fin-amount" id="adminDetailFronted">$0</div>
+        <div class="admin-fin-sub">advances disbursed</div>
+      </div>
+      <div class="admin-fin-card">
+        <div class="admin-fin-label">Collected from families</div>
+        <div class="admin-fin-amount" id="adminDetailCollected">$0</div>
+        <div class="admin-fin-sub">payments received</div>
+      </div>
+    </div>
+
+    <!-- Recovery bar -->
+    <div class="admin-recovery-bar">
+      <div class="admin-recovery-track">
+        <div class="admin-recovery-fill" id="adminDetailRecoveryBar" style="width:0%"></div>
+      </div>
+      <div class="admin-recovery-label" id="adminDetailRecoveryLabel"><b>0%</b> of advances recovered</div>
+    </div>
+
     <div class="roster-section-label">Teams</div>
     <div id="adminTeamList"></div>
   </div>
@@ -1382,17 +1486,31 @@
     <div class="eyebrow">PlayFund Admin</div>
     <h1 class="title" id="adminRosterTitle">Team roster</h1>
     <p class="subtitle" id="adminRosterSub"></p>
-    <div class="funded-row" style="background:var(--ink); border-radius:14px; padding:16px 18px; margin-bottom:20px; color:var(--white);">
-      <div class="funded-stat">
-        <div class="funded-stat-num" id="adminRosterFunded">0/0</div>
-        <div class="funded-stat-label">Athletes Funded</div>
+
+    <!-- Three-stat banner -->
+    <div class="overview-rollup" style="margin-bottom:14px;">
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminRosterFronted">$0</div>
+        <div class="overview-rollup-label">Fronted</div>
       </div>
-      <div class="funded-stat-divider"></div>
-      <div class="funded-stat">
-        <div class="funded-stat-num" id="adminRosterCollected">$0</div>
-        <div class="funded-stat-label">Collected</div>
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminRosterFunded">0/0</div>
+        <div class="overview-rollup-label">Athletes Funded</div>
+      </div>
+      <div class="overview-rollup-stat">
+        <div class="overview-rollup-num" id="adminRosterCollected">$0</div>
+        <div class="overview-rollup-label">Collected</div>
       </div>
     </div>
+
+    <!-- Recovery bar -->
+    <div class="admin-recovery-bar">
+      <div class="admin-recovery-track">
+        <div class="admin-recovery-fill" id="adminRosterRecoveryBar" style="width:0%"></div>
+      </div>
+      <div class="admin-recovery-label" id="adminRosterRecoveryLabel"><b>0%</b> of advances recovered</div>
+    </div>
+
     <div id="adminRosterList"></div>
   </div>
 
@@ -1529,6 +1647,25 @@ var usStates = ["Virginia"];
     setTimeout(function(){
       document.getElementById('splash').classList.add('done');
     }, 1300);
+
+    // Enter key → submit for all input screens
+    var enterMap = [
+      // [inputId(s), submitFn]
+      [['clubCodeInput', 'clubPinInput'],       function(){ submitClubLogin(); }],
+      [['athleteNameInput', 'codeInput'],        function(){ submitCode(); }],
+      [['adminPasscode'],                        function(){ submitAdminLogin(); }],
+      [['adminEmailInput', 'adminPasswordInput'],function(){ submitAdminEmailLogin(); }],
+      [['addTeamName','addTeamAge','addTeamDues','addTeamStart','addTeamEnd','addTeamDue'], function(){ submitAddTeam(); }],
+      [['addAthleteAdminName','addAthleteAdminAge','addAthleteAdminEmail','addAthleteAdminPhone'], function(){ submitAddAthleteAdmin(); }],
+    ];
+    enterMap.forEach(function(pair){
+      pair[0].forEach(function(id){
+        var el = document.getElementById(id);
+        if(el) el.addEventListener('keydown', function(e){
+          if(e.key === 'Enter'){ e.preventDefault(); pair[1](); }
+        });
+      });
+    });
   });
 
   // ---------- navigation ----------
@@ -2278,38 +2415,100 @@ var usStates = ["Virginia"];
   }
 
   // ---------- PlayFund admin ----------
-  var ADMIN_PASSCODE = 'playfund2026'; // simple pilot passcode — change before going live
+  var adminSession = null; // holds access_token for the session
 
-  function submitAdminLogin(){
-    var code = document.getElementById('adminPasscode').value.trim();
-    var errEl = document.getElementById('adminLoginError');
-    if(code !== ADMIN_PASSCODE){
-      errEl.textContent = 'Incorrect passcode.'; return;
+  async function submitAdminEmailLogin(){
+    var email    = (document.getElementById('adminEmailInput').value || '').trim();
+    var password = (document.getElementById('adminPasswordInput').value || '').trim();
+    var errEl    = document.getElementById('adminLoginError');
+
+    if(!email || !password){ errEl.textContent = 'Enter your email and password.'; return; }
+    errEl.textContent = 'Signing in…';
+
+    try {
+      var res = await fetch(WORKER_URL + '/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: email, password: password })
+      });
+      var data = await res.json();
+      if(!res.ok){ errEl.textContent = data.error || 'Invalid email or password.'; return; }
+
+      // Check that this user has playfund_admin role
+      if(data.user.role !== 'playfund_admin'){
+        errEl.textContent = 'This account does not have admin access.'; return;
+      }
+
+      adminSession = data.access_token;
+      try { sessionStorage.setItem('pf_admin_token', adminSession); } catch(e){}
+      errEl.textContent = '';
+      document.getElementById('adminPasswordInput').value = '';
+      loadAdminClubs();
+    } catch(e) {
+      errEl.textContent = 'Network error. Please try again.';
     }
-    errEl.textContent = '';
-    document.getElementById('adminPasscode').value = '';
-    loadAdminClubs();
+  }
+
+  // Keep backward compat with old passcode function name (now unused but referenced in Enter map)
+  function submitAdminLogin(){ submitAdminEmailLogin(); }
+
+  function adminSignOut(){
+    adminSession = null;
+    try { sessionStorage.removeItem('pf_admin_token'); } catch(e){}
+    document.getElementById('adminEmailInput').value = '';
+    document.getElementById('adminPasswordInput').value = '';
+    document.getElementById('adminLoginError').textContent = '';
+    showScreen('admin-login');
+  }
+
+  function enterAdminMode(){
+    // Restore session from sessionStorage if available
+    try {
+      var saved = sessionStorage.getItem('pf_admin_token');
+      if(saved){ adminSession = saved; loadAdminClubs(); return; }
+    } catch(e){}
+    showScreen('admin-login');
   }
 
   async function loadAdminClubs(){
     showScreen('admin-clubs');
-    document.getElementById('adminClubsSubtitle').textContent = 'Loading…';
+    // Reset rollup
+    ['adminTotalClubs','adminTotalTeams','adminTotalAthletes'].forEach(function(id){
+      document.getElementById(id).textContent = '…';
+    });
+    document.getElementById('adminTotalFronted').textContent = '…';
+    document.getElementById('adminTotalCollected').textContent = '…';
+    document.getElementById('adminTotalRecoveryBar').style.width = '0%';
+    document.getElementById('adminTotalRecoveryLabel').innerHTML = '<b>0%</b> of advances recovered';
     document.getElementById('adminClubList').innerHTML = '';
+
     try {
       var res = await fetch(WORKER_URL + '/admin/clubs');
       var data = await res.json();
       var clubs = data.clubs || [];
-      document.getElementById('adminClubsSubtitle').textContent =
-        clubs.length + ' club' + (clubs.length !== 1 ? 's' : '') + ' on PlayFund';
+      var totals = data.totals || {};
 
+      // Populate rollup banner
+      document.getElementById('adminTotalClubs').textContent     = totals.clubs || 0;
+      document.getElementById('adminTotalTeams').textContent     = totals.teams || 0;
+      document.getElementById('adminTotalAthletes').textContent  = totals.athletes || 0;
+
+      // Financial panels
+      var fronted   = (totals.fronted_cents   || 0) / 100;
+      var collected = (totals.collected_cents || 0) / 100;
+      var pct       = fronted > 0 ? Math.min(100, Math.round(collected / fronted * 100)) : 0;
+      document.getElementById('adminTotalFronted').textContent   = '$' + Math.round(fronted).toLocaleString();
+      document.getElementById('adminTotalCollected').textContent = '$' + Math.round(collected).toLocaleString();
+      document.getElementById('adminTotalRecoveryBar').style.width = pct + '%';
+      document.getElementById('adminTotalRecoveryLabel').innerHTML = '<b>' + pct + '%</b> of advances recovered';
+
+      // Club cards
       var listEl = document.getElementById('adminClubList');
-      listEl.innerHTML = '';
       if(clubs.length === 0){
         listEl.innerHTML = '<p style="color:var(--ink-soft); font-size:14px; text-align:center; padding:32px 0;">No clubs yet.</p>';
         return;
       }
       clubs.forEach(function(club){
-        var pct = club.athlete_count ? Math.round(club.funded_count / club.athlete_count * 100) : 0;
         var card = document.createElement('div');
         card.className = 'team-card';
         card.style.marginBottom = '10px';
@@ -2323,22 +2522,34 @@ var usStates = ["Virginia"];
           '</div>' +
           '<div class="team-card-funded">' +
             '<div class="team-card-funded-num">' + club.funded_count + '/' + club.athlete_count + '</div>' +
-            '<div class="team-card-funded-label">Funded</div>' +
+            '<div class="team-card-funded-label">Athletes Funded</div>' +
           '</div>';
         card.addEventListener('click', function(){ openAdminClubDetail(club); });
         listEl.appendChild(card);
       });
     } catch(e) {
-      document.getElementById('adminClubsSubtitle').textContent = 'Error loading clubs.';
+      document.getElementById('adminTotalClubs').textContent = '!';
+      console.error('loadAdminClubs error:', e);
     }
   }
 
   function openAdminClubDetail(club){
     document.getElementById('adminClubDetailName').textContent = club.name;
     document.getElementById('adminClubDetailSub').textContent = club.city + ' · ' + club.sport + ' · Code: ' + club.code;
-    document.getElementById('adminDetailTeams').textContent = club.team_count;
+
+    // Rollup banner
+    document.getElementById('adminDetailTeams').textContent    = club.team_count;
     document.getElementById('adminDetailAthletes').textContent = club.athlete_count;
-    document.getElementById('adminDetailFunded').textContent = club.funded_count;
+    document.getElementById('adminDetailFunded').textContent   = club.funded_count + '/' + club.athlete_count;
+
+    // Financial panels
+    var fronted   = (club.fronted_cents   || 0) / 100;
+    var collected = (club.collected_cents || 0) / 100;
+    var pct       = fronted > 0 ? Math.min(100, Math.round(collected / fronted * 100)) : 0;
+    document.getElementById('adminDetailFronted').textContent   = '$' + Math.round(fronted).toLocaleString();
+    document.getElementById('adminDetailCollected').textContent = '$' + Math.round(collected).toLocaleString();
+    document.getElementById('adminDetailRecoveryBar').style.width = pct + '%';
+    document.getElementById('adminDetailRecoveryLabel').innerHTML = '<b>' + pct + '%</b> of advances recovered';
 
     var teamListEl = document.getElementById('adminTeamList');
     teamListEl.innerHTML = '';
@@ -2366,8 +2577,11 @@ var usStates = ["Virginia"];
     document.getElementById('adminRosterTitle').textContent = club.name + ' — ' + team.name;
     document.getElementById('adminRosterSub').textContent = fmtUSD(team.dues_cents/100) + ' season dues';
     document.getElementById('adminRosterList').innerHTML = '<p style="color:var(--ink-soft); font-size:14px; padding:16px 0;">Loading…</p>';
-    document.getElementById('adminRosterFunded').textContent = '…';
+    document.getElementById('adminRosterFronted').textContent   = '…';
+    document.getElementById('adminRosterFunded').textContent    = '…';
     document.getElementById('adminRosterCollected').textContent = '…';
+    document.getElementById('adminRosterRecoveryBar').style.width = '0%';
+    document.getElementById('adminRosterRecoveryLabel').innerHTML = '<b>0%</b> of advances recovered';
     showScreen('admin-team-roster');
 
     try {
@@ -2379,16 +2593,28 @@ var usStates = ["Virginia"];
       var athletes = liveTeam.athletes || [];
       var dues = liveTeam.dues_cents / 100;
       var advanceAmt = Math.round(dues * 0.95);
-      var funded = 0, collected = 0;
+      var funded = 0, fronted = 0;
       athletes.forEach(function(a){
         var s = a.payment_status || 'unpaid';
-        if(['paid_full','bnpl_active','bnpl_complete'].includes(s)){ funded++; }
-        if(s === 'paid_full') collected += dues;
-        else if(s === 'bnpl_active' || s === 'bnpl_complete') collected += advanceAmt;
+        if(['paid_full','bnpl_active','bnpl_complete'].includes(s)){
+          funded++;
+          fronted += advanceAmt;
+        }
       });
 
-      document.getElementById('adminRosterFunded').textContent = funded + '/' + athletes.length;
+      // Collected comes from stats returned by /club/:code
+      var collected = (data.stats && data.stats.collected_cents)
+        ? data.stats.collected_cents / 100 : 0;
+
+      // Filter to just this team's athletes for collected estimate
+      // (stats is club-wide; for team-level we use fronted as proxy until per-team payments available)
+      var pct = fronted > 0 ? Math.min(100, Math.round(collected / fronted * 100)) : 0;
+
+      document.getElementById('adminRosterFronted').textContent   = '$' + Math.round(fronted).toLocaleString();
+      document.getElementById('adminRosterFunded').textContent    = funded + '/' + athletes.length;
       document.getElementById('adminRosterCollected').textContent = '$' + Math.round(collected).toLocaleString();
+      document.getElementById('adminRosterRecoveryBar').style.width = pct + '%';
+      document.getElementById('adminRosterRecoveryLabel').innerHTML = '<b>' + pct + '%</b> of advances recovered';
 
       var listEl = document.getElementById('adminRosterList');
       if(athletes.length === 0){
@@ -2421,6 +2647,7 @@ var usStates = ["Virginia"];
       });
     } catch(e) {
       document.getElementById('adminRosterList').innerHTML = '<p style="color:var(--unpaid);">Error loading roster.</p>';
+      console.error('openAdminTeamRoster error:', e);
     }
   }
 
