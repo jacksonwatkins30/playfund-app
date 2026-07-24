@@ -578,25 +578,20 @@
 
   /* ---------- Admin financial panels ---------- */
   .admin-fin-panel {
-    display: flex; gap: 12px; margin-bottom: 16px;
+    display: flex; gap: 12px; margin-bottom: 12px;
   }
   .admin-fin-card {
     flex: 1; background: var(--paper-dim); border-radius: 12px; padding: 14px 16px;
   }
-  .admin-fin-label {
-    font-size: 11px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 0.05em; color: var(--ink-soft); margin-bottom: 4px;
-  }
   .admin-fin-amount {
     font-family: 'Anton', sans-serif; font-size: 22px; font-weight: 400; color: var(--ink);
-    line-height: 1;
+    line-height: 1; margin-bottom: 5px;
   }
-  .admin-fin-sub {
-    font-size: 11px; color: var(--ink-soft); margin-top: 3px;
+  .admin-fin-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.06em; color: var(--ink-soft);
   }
-  .admin-recovery-bar {
-    margin-bottom: 20px;
-  }
+  .admin-recovery-bar { margin-bottom: 20px; }
   .admin-recovery-track {
     height: 6px; background: var(--line); border-radius: 3px; overflow: hidden; margin-bottom: 5px;
   }
@@ -604,10 +599,48 @@
     height: 100%; background: var(--fund-green); border-radius: 3px;
     transition: width 0.4s ease;
   }
-  .admin-recovery-label {
-    font-size: 11.5px; color: var(--ink-soft);
-  }
+  .admin-recovery-label { font-size: 11.5px; color: var(--ink-soft); }
   .admin-recovery-label b { color: var(--ink); }
+
+  /* ---------- Team season timeline (inside dark teal banner) ---------- */
+  .team-banner {
+    background: var(--ink); border-radius: 14px; padding: 18px;
+    display: flex; align-items: stretch; gap: 16px; margin-bottom: 14px; color: var(--white);
+  }
+  .team-timeline {
+    flex: 1; display: flex; flex-direction: column; justify-content: space-between;
+    position: relative; padding-left: 20px;
+  }
+  .team-timeline::before {
+    content: ''; position: absolute; left: 6px; top: 8px; bottom: 8px;
+    width: 2px; background: rgba(255,255,255,0.25); border-radius: 1px;
+  }
+  .timeline-node { display: flex; flex-direction: column; gap: 1px; position: relative; }
+  .timeline-node::before {
+    content: ''; position: absolute; left: -17px; top: 5px;
+    width: 10px; height: 10px; border-radius: 50%;
+    background: var(--fund-green); border: 2px solid var(--ink);
+    box-shadow: 0 0 0 2px var(--fund-green);
+  }
+  .timeline-node-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: rgba(255,255,255,0.6);
+  }
+  .timeline-node-date { font-size: 13px; font-weight: 600; color: var(--white); }
+  .team-banner-divider {
+    width: 1px; background: rgba(255,255,255,0.15); flex-shrink: 0;
+  }
+  .team-banner-funded {
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: center; gap: 4px; min-width: 72px;
+  }
+  .team-banner-funded-num {
+    font-family: 'Anton', sans-serif; font-size: 28px; font-weight: 400; line-height: 1;
+  }
+  .team-banner-funded-label {
+    font-size: 10px; font-weight: 700; text-transform: uppercase;
+    letter-spacing: 0.05em; color: rgba(255,255,255,0.6); text-align: center;
+  }
 
   /* ---------- Settings shell ---------- */
   .settings-row {
@@ -1387,7 +1420,7 @@
       <h1 class="title" style="margin-bottom:0;">All clubs</h1>
       <div style="display:flex; gap:12px; align-items:center;">
         <button onclick="loadAdminClubs()" style="background:none; border:none; padding:6px 0; font-size:12.5px; font-weight:700; color:var(--fund-green); cursor:pointer; font-family:'Inter',sans-serif;">↻ Refresh</button>
-        <button onclick="adminSignOut()" style="background:none; border:none; padding:6px 0; font-size:12.5px; font-weight:700; color:var(--unpaid); cursor:pointer; font-family:'Inter',sans-serif;">Sign out</button>
+        <button onclick="adminSignOut()" style="background:none; border:none; padding:6px 0; font-size:12.5px; font-weight:700; color:#555; cursor:pointer; font-family:'Inter',sans-serif;">Sign out</button>
       </div>
     </div>
 
@@ -1410,14 +1443,12 @@
     <!-- Financial panels -->
     <div class="admin-fin-panel">
       <div class="admin-fin-card">
-        <div class="admin-fin-label">Fronted to clubs</div>
         <div class="admin-fin-amount" id="adminTotalFronted">$0</div>
-        <div class="admin-fin-sub">advances disbursed</div>
+        <div class="admin-fin-label">Fronted to Clubs</div>
       </div>
       <div class="admin-fin-card">
-        <div class="admin-fin-label">Collected from families</div>
         <div class="admin-fin-amount" id="adminTotalCollected">$0</div>
-        <div class="admin-fin-sub">payments received</div>
+        <div class="admin-fin-label">Collected from Families</div>
       </div>
     </div>
 
@@ -1458,14 +1489,12 @@
     <!-- Financial panels -->
     <div class="admin-fin-panel">
       <div class="admin-fin-card">
-        <div class="admin-fin-label">Fronted to club</div>
         <div class="admin-fin-amount" id="adminDetailFronted">$0</div>
-        <div class="admin-fin-sub">advances disbursed</div>
+        <div class="admin-fin-label">Fronted to Club</div>
       </div>
       <div class="admin-fin-card">
-        <div class="admin-fin-label">Collected from families</div>
         <div class="admin-fin-amount" id="adminDetailCollected">$0</div>
-        <div class="admin-fin-sub">payments received</div>
+        <div class="admin-fin-label">Collected from Families</div>
       </div>
     </div>
 
@@ -1487,19 +1516,38 @@
     <h1 class="title" id="adminRosterTitle">Team roster</h1>
     <p class="subtitle" id="adminRosterSub"></p>
 
-    <!-- Three-stat banner -->
-    <div class="overview-rollup" style="margin-bottom:14px;">
-      <div class="overview-rollup-stat">
-        <div class="overview-rollup-num" id="adminRosterFronted">$0</div>
-        <div class="overview-rollup-label">Fronted</div>
+    <!-- Timeline + Athletes Funded banner -->
+    <div class="team-banner">
+      <div class="team-timeline" id="adminRosterTimeline">
+        <div class="timeline-node">
+          <div class="timeline-node-label">Team Sign Up</div>
+          <div class="timeline-node-date">Aug 15, 2026</div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-node-label">Team Funded</div>
+          <div class="timeline-node-date">Aug 29, 2026</div>
+        </div>
+        <div class="timeline-node">
+          <div class="timeline-node-label">Season Ends</div>
+          <div class="timeline-node-date">Oct 24, 2026</div>
+        </div>
       </div>
-      <div class="overview-rollup-stat">
-        <div class="overview-rollup-num" id="adminRosterFunded">0/0</div>
-        <div class="overview-rollup-label">Athletes Funded</div>
+      <div class="team-banner-divider"></div>
+      <div class="team-banner-funded">
+        <div class="team-banner-funded-num" id="adminRosterFunded">0/0</div>
+        <div class="team-banner-funded-label">Athletes Funded</div>
       </div>
-      <div class="overview-rollup-stat">
-        <div class="overview-rollup-num" id="adminRosterCollected">$0</div>
-        <div class="overview-rollup-label">Collected</div>
+    </div>
+
+    <!-- Financial panels -->
+    <div class="admin-fin-panel">
+      <div class="admin-fin-card">
+        <div class="admin-fin-amount" id="adminRosterFronted">$0</div>
+        <div class="admin-fin-label">Fronted to Club</div>
+      </div>
+      <div class="admin-fin-card">
+        <div class="admin-fin-amount" id="adminRosterCollected">$0</div>
+        <div class="admin-fin-label">Collected from Families</div>
       </div>
     </div>
 
@@ -2509,6 +2557,9 @@ var usStates = ["Virginia"];
         return;
       }
       clubs.forEach(function(club){
+        var recoveryPct = club.fronted_cents > 0
+          ? Math.min(100, Math.round(club.collected_cents / club.fronted_cents * 100)) : 0;
+        var totalDues = club.athlete_count * (club.teams[0] ? club.teams[0].dues_cents/100 : 0);
         var card = document.createElement('div');
         card.className = 'team-card';
         card.style.marginBottom = '10px';
@@ -2519,10 +2570,8 @@ var usStates = ["Virginia"];
           '<div class="team-card-meta">' +
             '<div class="team-card-name">' + club.name + '</div>' +
             '<div class="team-card-sub">' + club.city + ' &middot; ' + club.sport + ' &middot; ' + club.team_count + ' teams</div>' +
-          '</div>' +
-          '<div class="team-card-funded">' +
-            '<div class="team-card-funded-num">' + club.funded_count + '/' + club.athlete_count + '</div>' +
-            '<div class="team-card-funded-label">Athletes Funded</div>' +
+            '<div class="team-card-sub" style="margin-top:2px;">Total Dues: $' + Math.round(totalDues).toLocaleString() + '</div>' +
+            '<div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-top:4px;">' + recoveryPct + '% Advances Recovered</div>' +
           '</div>';
         card.addEventListener('click', function(){ openAdminClubDetail(club); });
         listEl.appendChild(card);
@@ -2535,7 +2584,16 @@ var usStates = ["Virginia"];
 
   function openAdminClubDetail(club){
     document.getElementById('adminClubDetailName').textContent = club.name;
-    document.getElementById('adminClubDetailSub').textContent = club.city + ' · ' + club.sport + ' · Code: ' + club.code;
+
+    // Total Dues across all athletes
+    var totalDues = 0;
+    (club.teams || []).forEach(function(t){
+      // athlete_count is club-wide; approximate per-team as even split
+      totalDues += (t.dues_cents || 0) / 100 * club.athlete_count / Math.max(club.team_count, 1);
+    });
+    document.getElementById('adminClubDetailSub').textContent =
+      club.city + ' · ' + club.sport + ' · ' + club.team_count + ' teams · Total Dues: $' +
+      Math.round(club.athlete_count * (club.teams[0] ? club.teams[0].dues_cents/100 : 0)).toLocaleString();
 
     // Rollup banner
     document.getElementById('adminDetailTeams').textContent    = club.team_count;
@@ -2554,6 +2612,12 @@ var usStates = ["Virginia"];
     var teamListEl = document.getElementById('adminTeamList');
     teamListEl.innerHTML = '';
     (club.teams || []).forEach(function(team){
+      var teamDues = (team.dues_cents || 0) / 100;
+      // Per-team athlete count not available here — show total dues based on club average
+      var athletesPerTeam = Math.round(club.athlete_count / Math.max(club.team_count, 1));
+      var teamTotalDues = teamDues * athletesPerTeam;
+      // Recovery % — 0 until we have per-team payment data
+      var teamRecoveryPct = 0;
       var card = document.createElement('div');
       card.className = 'team-card';
       card.style.marginBottom = '10px';
@@ -2563,9 +2627,9 @@ var usStates = ["Virginia"];
         '</div>' +
         '<div class="team-card-meta">' +
           '<div class="team-card-name">' + team.name + '</div>' +
-          '<div class="team-card-sub">' + fmtUSD(team.dues_cents/100) + ' dues</div>' +
-        '</div>' +
-        '<div style="color:var(--ink-soft); font-size:12px;">View →</div>';
+          '<div class="team-card-sub">$' + Math.round(teamDues).toLocaleString() + ' dues · Total Dues: $' + Math.round(teamTotalDues).toLocaleString() + '</div>' +
+          '<div style="font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-soft); margin-top:4px;">' + teamRecoveryPct + '% Advances Recovered</div>' +
+        '</div>';
       card.addEventListener('click', function(){ openAdminTeamRoster(club, team); });
       teamListEl.appendChild(card);
     });
