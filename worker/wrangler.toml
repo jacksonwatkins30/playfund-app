@@ -8,3 +8,9 @@ account_id = "921521fbac1614ae10f0ae059d83d006"
 # secret here; those stay in the Cloudflare dashboard as encrypted secrets.
 STRIPE_PUBLISHABLE_KEY = "pk_test_51U1c5LPyhgYp24ebIZN7ju9f1pr20HROJ6EWDX0dmu9J2BDjVVdFrVRjs2Jdp8GKATq5CD6vQc1OzykSj85n2qjT00UvrSdkAt"
 APP_URL = "https://playfundai.github.io/playfund-app/"
+
+# Daily reminder-email sweep (runScheduledReminders). Was previously only
+# configured through the Cloudflare dashboard, not declared here — matched
+# against the live schedule via the Cloudflare API before adding this.
+[triggers]
+crons = ["0 13 * * *"]
