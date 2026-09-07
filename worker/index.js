@@ -2,6 +2,10 @@ var __defProp = Object.defineProperty;
 var __name = (target, value) => __defProp(target, "name", { value, configurable: true });
 
 // index.js
+// Stripe Payment Method Configuration scoped to "pay in full": card + bank
+// only, with Link and every BNPL method (Klarna, Affirm, Afterpay) turned
+// off. Not a secret — safe to commit, same as the publishable key.
+var PAY_IN_FULL_PMC_ID = "pmc_1UD4SnPyhgYp24ebsPEd8LSJ";
 var CORS = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
@@ -1637,14 +1641,17 @@ var index_default = {
       const feeBps = club.fee_bps != null ? club.fee_bps : 500;
       const applicationFeeAmount = Math.round(duesCents * feeBps / 1e4);
       const APP_URL = env.APP_URL || "https://playfundai.github.io/playfund-app/";
-      // 'full' and 'bnpl' are deliberately restricted to disjoint payment_method_types —
-      // Klarna must never appear as an option on a "pay in full" checkout, and card/bank
-      // must never appear on the installment checkout. Keep these two lists disjoint.
-      const paymentMethodTypes = payment_type === "bnpl" ? ["klarna"] : ["card", "us_bank_account"];
-      const sessionRes = await stripe(env, "POST", "/checkout/sessions", {
+      // 'full' and 'bnpl' must never leak into each other. Naively restricting
+      // payment_method_types isn't enough on its own: Stripe Link recognizes a
+      // returning customer and will still offer their previously-saved Klarna
+      // instrument on a "pay in full" session, since Link treats saved BNPL
+      // methods as part of its own wallet rather than something gated by the
+      // merchant's per-session type list. A dedicated Payment Method
+      // Configuration with Link (and every BNPL method) turned off is the only
+      // thing that actually blocks it — see PAY_IN_FULL_PMC_ID below.
+      const sessionParams = {
         mode: "payment",
         ui_mode: "embedded_page",
-        payment_method_types: paymentMethodTypes,
         line_items: [{
           price_data: {
             currency: "usd",
@@ -1660,7 +1667,13 @@ var index_default = {
         },
         metadata: { athlete_id: athleteId },
         return_url: `${APP_URL}?checkout=return&athlete=${athleteId}&session_id={CHECKOUT_SESSION_ID}`
-      });
+      };
+      if (payment_type === "bnpl") {
+        sessionParams.payment_method_types = ["klarna"];
+      } else {
+        sessionParams.payment_method_configuration = PAY_IN_FULL_PMC_ID;
+      }
+      const sessionRes = await stripe(env, "POST", "/checkout/sessions", sessionParams);
       if (!sessionRes.ok) return err("Failed to create checkout session: " + JSON.stringify(sessionRes.data), 500);
       return json({ client_secret: sessionRes.data.client_secret });
     }
