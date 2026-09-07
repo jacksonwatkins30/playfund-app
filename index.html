@@ -2301,28 +2301,20 @@
 
     <!-- Status card -->
     <div class="payment-mgmt-card">
-      <div class="payment-mgmt-label">Payment plan</div>
+      <div class="payment-mgmt-label">Season dues</div>
       <div class="payment-mgmt-amount" id="pmTotalAmt">$950</div>
-      <div class="payment-mgmt-sub" id="pmPlanSub">4 monthly payments of $238</div>
+      <div class="payment-mgmt-sub" id="pmPlanSub">Paid in full to the club via a Klarna installment plan</div>
       <div style="border-top:1px solid rgba(255,255,255,0.12); margin-top:14px; padding-top:14px;">
         <div class="payment-mgmt-row">
-          <span class="payment-mgmt-row-label">Payments made</span>
-          <span class="payment-mgmt-row-value" id="pmPaid">—</span>
-        </div>
-        <div class="payment-mgmt-row">
-          <span class="payment-mgmt-row-label">Remaining balance</span>
-          <span class="payment-mgmt-row-value" id="pmRemaining">—</span>
-        </div>
-        <div class="payment-mgmt-row">
-          <span class="payment-mgmt-row-label">Next payment</span>
-          <span class="payment-mgmt-row-value" id="pmNextDate">—</span>
+          <span class="payment-mgmt-row-label">Managed by</span>
+          <span class="payment-mgmt-row-value">Klarna</span>
         </div>
       </div>
     </div>
 
     <!-- Schedule -->
-    <div class="roster-section-label">Payment schedule (estimated)</div>
-    <p style="font-size:12px; color:var(--ink-soft); margin:-4px 0 10px;">Based on the plan you selected. Klarna is the source of truth for your actual dates and amounts.</p>
+    <div class="roster-section-label">Payment schedule</div>
+    <p style="font-size:12px; color:var(--ink-soft); margin:-4px 0 10px;">Klarna is the source of truth for your exact dates and amounts, not PlayFund.</p>
     <div id="pmScheduleList"></div>
 
     <div style="margin-top:20px; padding:14px; background:var(--paper-dim); border-radius:10px;">
@@ -4350,23 +4342,14 @@ var usStates = ["Virginia"];
     var ct = getAthleteClubTeam(athlete);
     var dues = ct && ct.team ? (ct.team.dues || 0) : 0;
     var history = athlete.history || buildAthleteHistory(athlete);
-    var weeks = athlete.termWeeks || 4;
-    var perPmt = Math.round(dues / weeks);
-    var paid = history.filter(function(h){ return h.status === 'paid'; }).length;
-    var remaining = dues - (paid * perPmt);
-    var next = history.find(function(h){ return h.status !== 'paid'; });
 
     document.getElementById('pmAthleteTitle').textContent = athlete.name;
     document.getElementById('pmClubTitle').textContent = ct && ct.club ? ct.club.name : '';
     document.getElementById('pmTotalAmt').textContent = '$' + dues.toLocaleString();
-    document.getElementById('pmPlanSub').textContent = weeks + ' payments of $' + perPmt.toLocaleString();
-    document.getElementById('pmPaid').textContent = paid + ' of ' + weeks;
-    document.getElementById('pmRemaining').textContent = '$' + Math.max(0, remaining).toLocaleString();
-    document.getElementById('pmNextDate').textContent = next
-      ? safeFmtDate(next.date)
-      : 'All paid ✓';
 
-    // Build schedule
+    // Build schedule. We only ever know two things for certain: the club got
+    // paid, and Klarna owns everything after that — never fabricate specific
+    // installment counts, amounts, or dates here (see buildAthleteHistory).
     var listEl = document.getElementById('pmScheduleList');
     listEl.innerHTML = '';
     history.forEach(function(h){
@@ -4383,11 +4366,11 @@ var usStates = ["Virginia"];
         '</div>' +
         '<div class="roster-name-block">' +
           '<div class="roster-name">' + h.label + '</div>' +
-          '<div class="roster-age">' + dateStr + '</div>' +
+          (dateStr ? '<div class="roster-age">' + dateStr + '</div>' : '') +
         '</div>' +
         '<div class="roster-right">' +
-          '<div style="font-size:15px; font-weight:700; color:var(--ink);">$' + (h.amount || perPmt).toLocaleString() + '</div>' +
-          '<div class="status-pill" style="margin-top:3px; background:' + (isPaid ? 'var(--paid-bg)' : '#FEF3C7') + '; color:' + (isPaid ? 'var(--paid)' : '#B45309') + ';">' + (isPaid ? 'Paid' : 'Scheduled') + '</div>' +
+          (h.amount != null ? '<div style="font-size:15px; font-weight:700; color:var(--ink);">$' + h.amount.toLocaleString() + '</div>' : '') +
+          '<div class="status-pill" style="margin-top:3px; background:' + (isPaid ? 'var(--paid-bg)' : '#FEF3C7') + '; color:' + (isPaid ? 'var(--paid)' : '#B45309') + ';">' + (isPaid ? 'Paid' : 'See Klarna') + '</div>' +
         '</div>';
       listEl.appendChild(row);
     });
