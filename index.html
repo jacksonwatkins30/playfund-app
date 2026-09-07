@@ -3077,25 +3077,27 @@ var usStates = ["Virginia"];
     var errEl    = document.getElementById('clubLoginError');
     if(!email || !password){ errEl.textContent = 'Enter your email and password.'; errEl.classList.remove('loading-msg'); return; }
     errEl.textContent = 'Signing in…'; errEl.classList.add('loading-msg');
+    trackEvent('club_login_attempted', {});
     try {
       var res = await fetch(WORKER_URL + '/auth/login', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
       });
       var data = await res.json();
-      if(!res.ok){ errEl.textContent = data.error || 'Invalid email or password.'; errEl.classList.remove('loading-msg'); return; }
+      if(!res.ok){ trackEvent('club_login_failed', { reason: 'invalid_credentials' }); errEl.textContent = data.error || 'Invalid email or password.'; errEl.classList.remove('loading-msg'); return; }
       errEl.textContent = ''; errEl.classList.remove('loading-msg');
       try { sessionStorage.setItem(CLUB_SESSION_KEY, JSON.stringify(data)); } catch(e){}
       if(data.user.role === 'team_admin'){
+        trackEvent('club_login_succeeded', { role: 'team_admin' });
         openTeamAdminView(data);
       } else if(data.user.role === 'club_admin'){
         if(data.user.club){
           var club = await fetchClub(data.user.club.code, data.access_token);
-          if(club){ state.club = club; openClubOverview(); }
-          else { errEl.textContent = 'Club not found.'; }
+          if(club){ trackEvent('club_login_succeeded', { role: 'club_admin' }); state.club = club; openClubOverview(); }
+          else { trackEvent('club_login_failed', { reason: 'club_not_found' }); errEl.textContent = 'Club not found.'; }
         }
-      } else { errEl.textContent = 'This account does not have club access.'; }
-    } catch(e) { errEl.textContent = 'Network error. Please try again.'; errEl.classList.remove('loading-msg'); }
+      } else { trackEvent('club_login_failed', { reason: 'no_club_access' }); errEl.textContent = 'This account does not have club access.'; }
+    } catch(e) { trackEvent('club_login_failed', { reason: 'network_error' }); errEl.textContent = 'Network error. Please try again.'; errEl.classList.remove('loading-msg'); }
   }
 
   function enterClubMode(){
@@ -4640,6 +4642,7 @@ var usStates = ["Virginia"];
 
     if(!email || !password){ errEl.textContent = 'Enter your email and password.'; errEl.classList.remove('loading-msg'); return; }
     errEl.textContent = 'Signing in…'; errEl.classList.add('loading-msg');
+    trackEvent('admin_login_attempted', {});
 
     try {
       var res = await fetch(WORKER_URL + '/auth/login', {
@@ -4648,19 +4651,22 @@ var usStates = ["Virginia"];
         body: JSON.stringify({ email: email, password: password })
       });
       var data = await res.json();
-      if(!res.ok){ errEl.textContent = data.error || 'Invalid email or password.'; return; }
+      if(!res.ok){ trackEvent('admin_login_failed', { reason: 'invalid_credentials' }); errEl.textContent = data.error || 'Invalid email or password.'; return; }
 
       // Check that this user has playfund_admin role
       if(data.user.role !== 'playfund_admin'){
+        trackEvent('admin_login_failed', { reason: 'no_admin_access' });
         errEl.textContent = 'This account does not have admin access.'; errEl.classList.remove('loading-msg'); return;
       }
 
+      trackEvent('admin_login_succeeded', {});
       adminSession = data.access_token;
       try { sessionStorage.setItem('pf_admin_token', adminSession); } catch(e){}
       errEl.textContent = '';
       document.getElementById('adminPasswordInput').value = '';
       loadAdminClubs();
     } catch(e) {
+      trackEvent('admin_login_failed', { reason: 'network_error' });
       errEl.textContent = 'Network error. Please try again.'; errEl.classList.remove('loading-msg');
     }
   }
@@ -4847,8 +4853,9 @@ var usStates = ["Virginia"];
       payoutDateStr = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
     }
 
+    trackEvent('club_signup_submitted', {});
     try {
-      await fetch(WORKER_URL + '/club/register', {
+      var regRes = await fetch(WORKER_URL + '/club/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -4865,7 +4872,19 @@ var usStates = ["Virginia"];
           teams:         regState.teams
         })
       });
-    } catch(e){ console.warn('Registration submit (non-blocking):', e); }
+      if(!regRes.ok){
+        trackEvent('club_signup_failed', { reason: 'server_error' });
+        var reg2Err = document.getElementById('reg2Error');
+        if(reg2Err) reg2Err.textContent = "Something went wrong submitting your registration. Please try again, or email admin@playfundai.com.";
+        return;
+      }
+    } catch(e){
+      trackEvent('club_signup_failed', { reason: 'network_error' });
+      var reg2ErrCatch = document.getElementById('reg2Error');
+      if(reg2ErrCatch) reg2ErrCatch.textContent = "Something went wrong submitting your registration. Please try again, or email admin@playfundai.com.";
+      return;
+    }
+    trackEvent('club_signup_completed', {});
 
     // Populate step 4 confirmation
     document.getElementById('reg4Title').textContent = regState.adminName
