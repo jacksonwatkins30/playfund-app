@@ -4262,26 +4262,36 @@ var usStates = ["Virginia"];
     showScreen('athlete-detail');
   }
 
-  function recordAthletePayment(method, weeks){
+  function recordAthletePayment(method, weeks, realPayment){
     var athlete = state.athletes.find(function(a){ return a.id === state.activeAthleteId; });
     if(!athlete) return;
     athlete.paymentStatus = method;
     athlete.termWeeks = weeks || null;
-    athlete.history = buildAthleteHistory(athlete);
+    // Prefer the real, webhook-verified payment record (real amount, real date,
+    // real Stripe transaction ID) whenever we have one — only fall back to the
+    // estimate if we truly don't (e.g. a cross-device sync that never fetched
+    // the full record). Once real history is set, never let a later call
+    // without a fresh record clobber it with a re-guessed one.
+    if(realPayment){
+      athlete.history = buildAthleteHistoryFromRealPayment(athlete, realPayment);
+    } else if(!athlete.history){
+      athlete.history = buildAthleteHistory(athlete);
+    }
     saveAthletes(state.athletes);
     renderAthleteList();
 
     var ct = getAthleteClubTeam(athlete);
-    var dues = ct && ct.team ? (ct.team.dues || 0) : 0;
     var clubName = ct && ct.club ? ct.club.name : 'your club';
 
     if(method === 'full'){
-      // Populate pay-in-full confirmation
+      // Populate pay-in-full confirmation from the real, webhook-verified
+      // payment record in athlete.history (never a guessed amount/date).
+      var fullHistory = athlete.history || [];
       document.getElementById('confirmNowTitle').textContent = athlete.name + ' is registered';
       document.getElementById('confirmNowSub').textContent = clubName + ' has been paid in full for the season. Nothing else is due.';
       var nowSched = document.getElementById('confirmNowSchedule');
       nowSched.innerHTML = '<div class="payment-schedule-title">Your payment</div>' +
-        renderScheduleRow({ label: 'Season dues, paid in full', date: new Date(), amount: dues, status: 'paid' });
+        fullHistory.map(renderScheduleRow).join('');
     } else {
       // Populate BNPL confirmation. We don't know the exact plan Klarna approved
       // (payment count, cadence, and split can vary by approval and ticket size),
@@ -4308,6 +4318,7 @@ var usStates = ["Virginia"];
       '<div class="payment-schedule-info">' +
         '<div class="payment-schedule-date">' + dateStr + '</div>' +
         '<div class="payment-schedule-label">' + item.label + '</div>' +
+        (item.txnId ? '<div class="payment-schedule-date" style="font-family:monospace;">Txn: ' + item.txnId + '</div>' : '') +
       '</div>' +
       '<div class="payment-schedule-right">' +
         (hasAmount ? '<div class="payment-schedule-amt">' + fmtUSD(item.amount) + '</div>' : '') +
@@ -4331,6 +4342,22 @@ var usStates = ["Virginia"];
     }
     return [
       { label: 'Club paid in full via Klarna', date: today, amount: dues, status: 'paid' },
+      { label: 'Installment schedule managed by Klarna — log in at klarna.com for exact dates and amounts', date: null, amount: null, status: 'upcoming' }
+    ];
+  }
+
+  // Same shape as buildAthleteHistory, but built from a real, webhook-verified
+  // payment record (real amount charged, real date, real Stripe transaction
+  // ID) instead of guessed from the team's configured dues and "now".
+  function buildAthleteHistoryFromRealPayment(athlete, payment){
+    var amount = payment.amount != null ? payment.amount : (payment.amount_cents || 0) / 100;
+    var date = payment.created_at ? new Date(payment.created_at) : new Date();
+    var txnId = payment.stripe_payment_intent || null;
+    if(athlete.paymentStatus === 'full'){
+      return [{ label: 'Season dues paid in full', date: date, amount: amount, status: 'paid', txnId: txnId }];
+    }
+    return [
+      { label: 'Club paid in full via Klarna', date: date, amount: amount, status: 'paid', txnId: txnId },
       { label: 'Installment schedule managed by Klarna — log in at klarna.com for exact dates and amounts', date: null, amount: null, status: 'upcoming' }
     ];
   }
@@ -5458,7 +5485,10 @@ var usStates = ["Virginia"];
         var data = await res.json();
         var status = data.athlete && data.athlete.payment_status;
         if(status && status !== 'unpaid'){
-          return (status === 'bnpl_active' || status === 'bnpl_complete') ? 'bnpl' : 'full';
+          var method = (status === 'bnpl_active' || status === 'bnpl_complete') ? 'bnpl' : 'full';
+          var payments = data.payments || [];
+          var lastSucceeded = payments.filter(function(p){ return p.status === 'succeeded'; }).slice(-1)[0] || null;
+          return { method: method, payment: lastSucceeded };
         }
       } catch(e){}
       if(i < tries - 1) await new Promise(function(r){ setTimeout(r, delayMs); });
@@ -5487,12 +5517,12 @@ var usStates = ["Virginia"];
     state.athletes = loadAthletes();
     state.activeAthleteId = localAthlete.id;
 
-    var method = await pollAthleteFunded(athId, 5, 1500);
-    if(method){
+    var funded = await pollAthleteFunded(athId, 5, 1500);
+    if(funded){
       await hydrateClubCache([localAthlete]);
-      recordAthletePayment(method, state.selectedTermWeeks);
-      trackEvent('checkout_confirmed', { payment_type: method });
-      showScreen(method === 'bnpl' ? 'confirm-terms' : 'confirm-now', true);
+      recordAthletePayment(funded.method, state.selectedTermWeeks, funded.payment);
+      trackEvent('checkout_confirmed', { payment_type: funded.method });
+      showScreen(funded.method === 'bnpl' ? 'confirm-terms' : 'confirm-now', true);
       return;
     }
 

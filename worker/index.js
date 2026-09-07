@@ -279,11 +279,16 @@ async function sendApprovalEmail(env, club, team, athlete) {
   }
 }
 __name(sendApprovalEmail, "sendApprovalEmail");
-async function sendReceiptEmail(env, club, athlete, amountCents, paymentMethod, newStatus) {
+async function sendReceiptEmail(env, club, athlete, amountCents, paymentMethod, newStatus, stripePaymentIntentId, chargedAt) {
   const RESEND_API_KEY = env.RESEND_API_KEY;
   if (!RESEND_API_KEY || !athlete.parent_email) return;
   const amount = (amountCents / 100).toLocaleString();
   const isKlarna = paymentMethod === "klarna";
+  const chargedAtStr = (chargedAt || /* @__PURE__ */ new Date()).toLocaleString("en-US", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "America/New_York"
+  }) + " ET";
   const statusLine = isKlarna
     ? (newStatus === "bnpl_complete" ? "Your Klarna installment plan is now fully paid off." : "This payment is part of your Klarna installment plan. Klarna will continue billing your remaining installments directly.")
     : "This covers the full season dues. Nothing else is due.";
@@ -315,10 +320,21 @@ async function sendReceiptEmail(env, club, athlete, amountCents, paymentMethod, 
               <td style="font-size:13px;color:#6B7280;padding-top:6px;">Club</td>
               <td align="right" style="font-size:13px;font-weight:700;color:#004643;padding-top:6px;">${club.name}</td>
             </tr>
+            <tr>
+              <td style="font-size:13px;color:#6B7280;padding-top:6px;">Date</td>
+              <td align="right" style="font-size:13px;font-weight:700;color:#004643;padding-top:6px;">${chargedAtStr}</td>
+            </tr>
+            ${stripePaymentIntentId ? `<tr>
+              <td style="font-size:13px;color:#6B7280;padding-top:6px;">Transaction ID</td>
+              <td align="right" style="font-size:12px;font-weight:700;color:#004643;padding-top:6px;font-family:monospace;">${stripePaymentIntentId}</td>
+            </tr>` : ""}
           </table>
         </td></tr>
       </table>
-      <p style="margin:20px 0 0;font-size:12px;color:#9CA3AF;text-align:center;">
+      <p style="margin:16px 0 0;font-size:12px;color:#9CA3AF;text-align:center;">
+        This charge was processed by Stripe, PlayFund's payment processor${stripePaymentIntentId ? ` — keep the transaction ID above if you need to reference this payment with Stripe, your card issuer, or ${club.name}` : ""}.
+      </p>
+      <p style="margin:8px 0 0;font-size:12px;color:#9CA3AF;text-align:center;">
         Questions about this payment? Reply to this email, contact ${club.name} directly, or reach <a href="mailto:admin@playfundai.com" style="color:#5BA888;text-decoration:none;">admin@playfundai.com</a>.
       </p>
     </td></tr>
@@ -1701,7 +1717,7 @@ var index_default = {
       const paymentsRes = await supabase(
         env,
         "GET",
-        `/payments?athlete_id=eq.${athleteId}&select=id,created_at,amount_cents,status,payment_method,installment_number&order=created_at.asc`
+        `/payments?athlete_id=eq.${athleteId}&select=id,created_at,amount_cents,status,payment_method,installment_number,stripe_payment_intent&order=created_at.asc`
       );
       const payments = (paymentsRes.data || []).map((p) => ({
         ...p,
@@ -1845,7 +1861,7 @@ var index_default = {
         );
         const clubRes = await supabase(env, "GET", `/clubs?id=eq.${athlete.club_id}&select=id,name`);
         const club = clubRes.data?.[0];
-        if (club) await sendReceiptEmail(env, club, athlete, amountCents, paymentMethod, newStatus);
+        if (club) await sendReceiptEmail(env, club, athlete, amountCents, paymentMethod, newStatus, pi.id, new Date(pi.created * 1e3));
       } else if (eventType === "payment_intent.payment_failed") {
         const pi = event.data.object;
         await supabase(env, "POST", "/payments", {
