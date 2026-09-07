@@ -112,3 +112,20 @@ Grounded in: real patterns already in `worker/index.js`.
 - [x] Checked Supabase against a real 5-club projection (using the actual "Team Richmond" club as the size reference — 4 teams, ~15-20 athletes/team): roughly 350 athletes, ~900 payment rows, tens of thousands of `events` rows for the whole pilot season. That's a trivial amount of data for Postgres — table/egress limits on Supabase's Free tier are not a real concern at this scale. Both Supabase and Resend are confirmed still on Free tier. **The actual Free-tier risk isn't storage, it's the project pausing after ~1 week with no API activity** — worth a calendar reminder to ping the Worker periodically during any quiet stretch (off-season, between pilot rounds), or just upgrading before the pilot goes live. (Exact current Supabase/Resend numeric limits should be checked on their live pricing pages, not taken from memory — plans change.)
 - [x] **Real, concrete Resend risk found, not just "check your limits":** the daily reminder sweep (`runScheduledReminders`, confirmed via the Cloudflare API to run on a live cron at `0 13 * * *` UTC) evaluates every club/team/athlete in one run and emails everyone eligible **in a single batch**. Team Richmond's own data shows 3 of its 4 teams already share one `dues_due_date` — a realistic pattern, since a whole club (or several pilot clubs starting around the same time) naturally lands on the same due date. If teams across multiple clubs share a due date, that's dozens to 100+ reminder emails firing in one daily run, which could hit a Resend Free-tier **daily** send cap even though the monthly total is fine. Not urgent with 1 test club, but worth knowing before 5 real clubs go live with overlapping season calendars — spreading the cron's send times or batching with delay is the fix if it becomes a problem
 - [x] Also fixed while checking this: the daily reminder cron trigger (`0 13 * * *`) was live in Cloudflare but only ever configured through the dashboard, never declared in `worker/wrangler.toml` — same class of gap as the Stripe publishable key earlier. Now declared under `[triggers]`, verified via the Cloudflare API that the schedule is unchanged after redeploying with it declared
+
+## 10. Email unsubscribe / suppression tracking
+
+Grounded in: none of this exists today — checked directly. No unsubscribe link in any of the 6 email templates, no suppression list in Supabase, and the Resend webhook built for item 4 only handles `email.opened`/`email.clicked`, not `email.bounced` or `email.complained`. Right now, if a parent unsubscribes or marks a reminder as spam, PlayFund has no way to know and keeps emailing them — a deliverability risk (spam complaints hurt the sending domain) and a real courtesy/compliance gap (CAN-SPAM requires honoring opt-outs).
+
+- [ ] Add a `suppressed_emails` table (or a flag on `athletes`/a parent-level table) and check it before every send
+- [ ] Add an unsubscribe link to the 5 customer-facing templates, pointing at a simple Worker endpoint that suppresses that address
+- [ ] Handle `email.bounced` and `email.complained` in the existing `POST /webhook/resend` handler — auto-suppress on either
+- [ ] Decide whether transactional emails (receipts, approval confirmations) should ever be suppressible, or only reminders/marketing — CAN-SPAM generally exempts pure transactional email from opt-out requirements, but that's worth confirming rather than assuming
+
+## 11. SMS / text capability
+
+Grounded in: `parent_phone` is already collected and stored (shown in the club's roster CSV export) but never used to send anything — no SMS provider is integrated anywhere in the codebase today.
+
+- [ ] Decide if/when this is worth it — a provider (e.g. Twilio) is real integration work: per-message cost, opt-in consent language, its own delivery/suppression tracking
+- [ ] If pursued, scope which messages would actually go by text vs. email (e.g. payment reminders/declines feel more urgent for text; receipts probably don't need it)
+- [ ] Not blocking the pilot — flagging so `parent_phone` isn't mistaken for a feature that already works
