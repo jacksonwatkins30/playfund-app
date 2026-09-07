@@ -4291,12 +4291,14 @@ var usStates = ["Virginia"];
       nowSched.innerHTML = '<div class="payment-schedule-title">Your payment</div>' +
         renderScheduleRow({ label: 'Season dues, paid in full', date: new Date(), amount: dues, status: 'paid' });
     } else {
-      // Populate BNPL confirmation with full installment schedule
-      var numWeeks = weeks || 8;
+      // Populate BNPL confirmation. We don't know the exact plan Klarna approved
+      // (payment count, cadence, and split can vary by approval and ticket size),
+      // so we never fabricate specific installment dates/amounts here — only
+      // Klarna knows those. See the matching FAQ copy for the same disclosure.
       var history = athlete.history || [];
       document.getElementById('confirmTermsTitle').textContent = athlete.name + ' is registered';
       document.getElementById('confirmTermsSub').textContent =
-        clubName + ' has been paid in full. Your ' + numWeeks + ' Klarna payments are scheduled below.';
+        clubName + ' has been paid in full. Klarna is handling your installment plan directly.';
       var termSched = document.getElementById('confirmTermsSchedule');
       termSched.innerHTML = '<div class="payment-schedule-title">Your payment schedule</div>' +
         history.map(renderScheduleRow).join('');
@@ -4307,6 +4309,7 @@ var usStates = ["Virginia"];
 
   function renderScheduleRow(item){
     var isPaid = item.status === 'paid';
+    var hasAmount = item.amount != null;
     var dateStr = safeFmtDate(item.date);
     return '<div class="payment-schedule-row">' +
       '<div class="payment-schedule-dot payment-schedule-dot--' + (isPaid ? 'paid' : 'upcoming') + '"></div>' +
@@ -4315,15 +4318,18 @@ var usStates = ["Virginia"];
         '<div class="payment-schedule-label">' + item.label + '</div>' +
       '</div>' +
       '<div class="payment-schedule-right">' +
-        '<div class="payment-schedule-amt">' + fmtUSD(item.amount) + '</div>' +
-        (isPaid ? '<div class="payment-schedule-status">Paid</div>' : '<div class="payment-schedule-label" style="text-align:right;">Klarna, automatic</div>') +
+        (hasAmount ? '<div class="payment-schedule-amt">' + fmtUSD(item.amount) + '</div>' : '') +
+        (isPaid ? '<div class="payment-schedule-status">Paid</div>' : (hasAmount ? '<div class="payment-schedule-label" style="text-align:right;">Klarna, automatic</div>' : '')) +
       '</div>' +
     '</div>';
   }
 
-  // Builds a plausible payment history for an athlete: a single dated receipt for
-  // Paid in Full, or a full installment schedule (past payments marked paid, future
-  // ones upcoming) for BNPL, based on today's date.
+  // Builds a payment history for an athlete: a single dated receipt for Paid in
+  // Full, or a club-payout receipt plus a pointer to Klarna for BNPL. We never
+  // fabricate specific installment dates/amounts for BNPL — the exact plan
+  // (payment count, cadence, split) is decided by Klarna at approval and can
+  // vary by ticket size, and PlayFund isn't told the details. See the matching
+  // FAQ copy for the same disclosure.
   function buildAthleteHistory(athlete){
     var ct = getAthleteClubTeam(athlete);
     var dues = ct.team.dues;
@@ -4331,20 +4337,10 @@ var usStates = ["Virginia"];
     if(athlete.paymentStatus === 'full'){
       return [{ label: 'Season dues paid in full', date: today, amount: dues, status: 'paid' }];
     }
-    var weeks = athlete.termWeeks || 8;
-    var perWeek = dues / weeks;
-    var items = [];
-    for(var i = 0; i < weeks; i++){
-      var d = new Date(today);
-      d.setDate(d.getDate() + i * 7);
-      items.push({
-        label: i === 0 ? 'Down payment' : 'Payment ' + (i + 1),
-        date: d,
-        amount: perWeek,
-        status: i === 0 ? 'paid' : 'upcoming'
-      });
-    }
-    return items;
+    return [
+      { label: 'Club paid in full via Klarna', date: today, amount: dues, status: 'paid' },
+      { label: 'Installment schedule managed by Klarna — log in at klarna.com for exact dates and amounts', date: null, amount: null, status: 'upcoming' }
+    ];
   }
 
   // ---------- payment management ----------
@@ -4586,7 +4582,7 @@ var usStates = ["Virginia"];
       return '<div class="history-item">' +
         '<div class="history-icon ' + item.status + '">' + icon + '</div>' +
         '<div class="history-label"><div class="history-title">' + item.label + '</div><div class="history-date">' + dateStr + '</div></div>' +
-        '<div class="history-amt">' + fmtUSD(item.amount) + '</div></div>';
+        (item.amount != null ? '<div class="history-amt">' + fmtUSD(item.amount) + '</div>' : '') + '</div>';
     }
 
     var html = '';
