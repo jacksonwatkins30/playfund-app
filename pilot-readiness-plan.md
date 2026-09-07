@@ -44,3 +44,31 @@ Staying blocked on Jackson (no forked/duplicate infrastructure) and no fixed dat
 - Phase 1: Stripe Dashboard (test mode) shows a connected account per club with `charges_enabled: true`; a test Checkout Session shows the correct `application_fee_amount` and destination in the Stripe Dashboard's payment detail view; Supabase athlete row flips to "funded" only after the webhook fires, not before.
 - Phase 2: privacy/terms pages resolve at real URLs; the Klarna screen's copy is read back verbatim to confirm no credit-impact claim.
 - Phase 3: for each of the 5 clubs, a full test-mode dry run (steps in item 19) before any live transaction.
+
+## Test credentials & fixtures
+
+Real, working test-mode fixtures built while testing the embedded checkout — reuse these instead of creating new ones each session. Everything here is Stripe **test mode** and Supabase data clearly labeled as throwaway (never used for a real pilot club).
+
+**Test club:** "Claude QA Test Club 3 (delete me)"
+- Club ID: `d60d69fa-61d0-4e15-bd1b-7655c2b63899`
+- Club code: `5D2GU64`
+- Stripe Connect (Express, test mode): `acct_1UD3r8Pyhg7pV7GM` — fully onboarded (test data), `charges_enabled`
+- Club admin email: `ajjurko4+claudetest3@gmail.com` (Gmail +alias, lands in AJ's own inbox). No password is set — this account was created via Supabase magic-link invite, not signup. To get a fresh session token for it, call `POST /club/register` again for a new test club (returns `invite_url` directly in the JSON response) or use Supabase's admin API to generate a new invite link for this same user.
+
+**Test team:** "QA Team" — ID `30db569f-3f33-404d-b242-f19c6c0f7424`, dues $500.00
+
+**Test athlete:** "QA Test Athlete" — ID `c0e4b995-b993-483d-b042-30f6a8ed42b3`, approved, parent email `ajjurko4+claudeparent@gmail.com`. Already has real succeeded test payments on it (one Klarna, one card) — good for testing "already paid" screens; register a fresh athlete under the same club/team for testing the unpaid → paid flow from scratch.
+
+**Deep links straight into checkout** (bypasses registration, uses the athlete above):
+- Pay in full: `https://playfundai.github.io/playfund-app/?code=5D2GU64&athlete=c0e4b995-b993-483d-b042-30f6a8ed42b3&method=full`
+- Installments (Klarna): `https://playfundai.github.io/playfund-app/?code=5D2GU64&athlete=c0e4b995-b993-483d-b042-30f6a8ed42b3&method=bnpl`
+
+**Stripe test card numbers** (any future expiry, any 3-digit CVC, any ZIP):
+- `4242 4242 4242 4242` — succeeds
+- `4000 0000 0000 0002` — declines (generic decline)
+- `4000 0000 0000 9995` — declines (insufficient funds)
+- Klarna in test mode doesn't need a card — it's a simple "Confirm test payment" click-through.
+
+**Stripe config:** `PAY_IN_FULL_PMC_ID` = `pmc_1UD4SnPyhgYp24ebsPEd8LSJ` — the Payment Method Configuration that keeps Link/Klarna/Affirm/Afterpay off the "pay in full" checkout (see `worker/index.js`). Not a secret, safe to reference.
+
+**Known cleanup owed:** two earlier throwaway test clubs also exist in Supabase from this same testing pass — "Claude QA Test Club (delete me)" and "Claude QA Test Club 2 (delete me)" — both inactive, no Stripe account, harmless but unused. Delete via Supabase directly whenever convenient.
