@@ -132,6 +132,23 @@ async function verifyStripeSignature(body, sigHeader, secret) {
   return computed === signature;
 }
 __name(verifyStripeSignature, "verifyStripeSignature");
+async function verifyResendSignature(body, svixId, svixTimestamp, svixSignature, secret) {
+  if (!svixId || !svixTimestamp || !svixSignature || !secret) return false;
+  const secretBytes = Uint8Array.from(atob(secret.replace(/^whsec_/, "")), (c) => c.charCodeAt(0));
+  const signedContent = `${svixId}.${svixTimestamp}.${body}`;
+  const key = await crypto.subtle.importKey(
+    "raw",
+    secretBytes,
+    { name: "HMAC", hash: "SHA-256" },
+    false,
+    ["sign"]
+  );
+  const sig = await crypto.subtle.sign("HMAC", key, new TextEncoder().encode(signedContent));
+  const computed = btoa(String.fromCharCode(...new Uint8Array(sig)));
+  const candidates = svixSignature.split(" ").map((s) => s.split(",")[1]).filter(Boolean);
+  return candidates.includes(computed);
+}
+__name(verifyResendSignature, "verifyResendSignature");
 async function sendReminderEmail(env, club, team, athlete) {
   const RESEND_API_KEY = env.RESEND_API_KEY;
   if (!RESEND_API_KEY) return { ok: false, error: "RESEND_API_KEY not configured" };
@@ -1873,6 +1890,35 @@ var index_default = {
           payment_method: pi.payment_method_types?.[0] || "card",
           notes: pi.last_payment_error?.message || "Payment failed"
         });
+      }
+      return json({ received: true });
+    }
+    if (method === "POST" && path === "/webhook/resend") {
+      const rawBody = await request.text();
+      const svixId = request.headers.get("svix-id");
+      const svixTimestamp = request.headers.get("svix-timestamp");
+      const svixSignature = request.headers.get("svix-signature");
+      const valid = await verifyResendSignature(rawBody, svixId, svixTimestamp, svixSignature, env.RESEND_WEBHOOK_SECRET);
+      if (!valid) return err("Invalid Resend signature", 401);
+      const event = JSON.parse(rawBody);
+      const eventType = event.type;
+      if (!eventType || !eventType.startsWith("email.")) return json({ received: true });
+      const properties = {
+        resend_email_id: event.data?.email_id || null,
+        subject: event.data?.subject || null
+      };
+      if (eventType === "email.clicked" && event.data?.click?.link) {
+        properties.link = event.data.click.link;
+      }
+      try {
+        await supabase(env, "POST", "/events", {
+          event_name: "email_" + eventType.slice("email.".length),
+          session_id: null,
+          athlete_id: null,
+          club_id: null,
+          properties
+        });
+      } catch (e) {
       }
       return json({ received: true });
     }
