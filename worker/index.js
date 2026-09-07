@@ -132,7 +132,7 @@ async function sendReminderEmail(env, club, team, athlete) {
   const RESEND_API_KEY = env.RESEND_API_KEY;
   if (!RESEND_API_KEY) return { ok: false, error: "RESEND_API_KEY not configured" };
   if (!athlete.parent_email) return { ok: false, skipped: true };
-  const APP_URL = env.APP_URL || "https://jacksonwatkins30.github.io/playfund-app";
+  const APP_URL = env.APP_URL || "https://playfundai.github.io/playfund-app/";
   const dues = (team.dues_cents || 0) / 100;
   const payUrl = `${APP_URL}?code=${club.code}&athlete=${athlete.id}`;
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
@@ -207,7 +207,7 @@ __name(sendReminderEmail, "sendReminderEmail");
 async function sendApprovalEmail(env, club, team, athlete) {
   const RESEND_API_KEY = env.RESEND_API_KEY;
   if (!RESEND_API_KEY || !athlete.parent_email) return;
-  const APP_URL = env.APP_URL || "https://jacksonwatkins30.github.io/playfund-app";
+  const APP_URL = env.APP_URL || "https://playfundai.github.io/playfund-app/";
   const dues = (team.dues_cents || 0) / 100;
   const payUrl = `${APP_URL}?code=${club.code}&athlete=${athlete.id}`;
   const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"><style>
@@ -1145,7 +1145,7 @@ var index_default = {
         accountId = acctRes.data.id;
         await supabase(env, "PATCH", `/clubs?id=eq.${clubId}`, { stripe_account_id: accountId });
       }
-      const APP_URL = env.APP_URL || "https://jacksonwatkins30.github.io/playfund-app";
+      const APP_URL = env.APP_URL || "https://playfundai.github.io/playfund-app/";
       const linkRes = await stripe(env, "POST", "/account_links", {
         account: accountId,
         refresh_url: `${APP_URL}?stripe_onboard=refresh&club_id=${clubId}`,
@@ -1397,7 +1397,7 @@ var index_default = {
               type: "invite",
               email: admin_email.toLowerCase().trim(),
               options: {
-                redirect_to: env.APP_URL || "https://jacksonwatkins30.github.io/playfund-app"
+                redirect_to: env.APP_URL || "https://playfundai.github.io/playfund-app/"
               }
             })
           });
@@ -1636,7 +1636,7 @@ var index_default = {
       if (!duesCents) return err("Team has no dues configured", 400);
       const feeBps = club.fee_bps != null ? club.fee_bps : 500;
       const applicationFeeAmount = Math.round(duesCents * feeBps / 1e4);
-      const APP_URL = env.APP_URL || "https://jacksonwatkins30.github.io/playfund-app";
+      const APP_URL = env.APP_URL || "https://playfundai.github.io/playfund-app/";
       // 'full' and 'bnpl' are deliberately restricted to disjoint payment_method_types —
       // Klarna must never appear as an option on a "pay in full" checkout, and card/bank
       // must never appear on the installment checkout. Keep these two lists disjoint.
