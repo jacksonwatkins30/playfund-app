@@ -1643,7 +1643,7 @@ var index_default = {
       const paymentMethodTypes = payment_type === "bnpl" ? ["klarna"] : ["card", "us_bank_account"];
       const sessionRes = await stripe(env, "POST", "/checkout/sessions", {
         mode: "payment",
-        ui_mode: "embedded",
+        ui_mode: "embedded_page",
         payment_method_types: paymentMethodTypes,
         line_items: [{
           price_data: {
