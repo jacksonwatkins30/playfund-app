@@ -36,9 +36,9 @@ Depends on item 2 — need a homepage before "loading stuff in."
 
 - [ ] Write down the actual questions to answer first — the ones a lender or investor will ask: payment-method mix (full vs. installments), approval/decline rates, time-to-registration, club retention, average dues size, geographic/sport demographics
 - [ ] Map each question to where the data actually lives: Stripe (payment status/method/fees), Klarna (approval/decline outcomes — confirm what's exposed via the Stripe integration vs. needing direct Klarna dashboard access), Supabase (system of record for clubs/athletes/payments), Resend (send/open/click — not currently captured anywhere but Resend's own dashboard)
-- [ ] Add email engagement tracking: nothing today pipes opens/clicks into Supabase; needs a Resend webhook wired in
-- [ ] Add a lightweight product-events table in Supabase for things that aren't naturally a payment row (registration started, payment method chosen, decline occurred)
-- [ ] Add funnel/click tracking through the actual app flows — club admin signup, parent login/registration — so drop-off points are visible: which screen someone abandons on, not just whether they ever finished. This means instrumenting `showScreen()` transitions and key button clicks in `index.html` and logging them (either into the same Supabase events table above, or a lightweight analytics tool) rather than only knowing final pass/fail state
+- [ ] Add email engagement tracking (opens/clicks): Resend supports it natively, but nothing today pipes it into Supabase where it can sit next to product data. Needs a Resend webhook endpoint in the Worker (`email.opened`, `email.clicked`) writing into the same `events` table added below, so "did this reminder get opened" can be queried alongside payment status
+- [x] Added a lightweight product-events table in Supabase (`events`: event_name, session_id, athlete_id, club_id, properties jsonb, created_at) — see setup step under item 6, since the embedded-checkout build needed it first
+- [x] Added funnel/click tracking as of the embedded-checkout build: every `showScreen()` call now logs a `screen_view` event, and the checkout flow logs `payment_method_selected`, `checkout_mounted`, `checkout_completed`, `checkout_confirmed`, `checkout_declined`, `checkout_canceled`, `checkout_error`. Interaction-level only (which screen/button), never what was typed — payment fields are Stripe's own iframe and never touch this page. Club admin signup / parent login funnels aren't instrumented yet, same pattern, just not done
 - [ ] Keep any demographic tracking at the parent/club level, not the athlete level — consistent with CLAUDE.md's minors data-minimization rule
 - [ ] Check what regulations actually apply to collecting minors' data (name, team, age group) — e.g. COPPA — and confirm today's minimal fields plus any new tracking added here stay compliant, not just "minimal because CLAUDE.md says so"
 - [ ] Confirm PlayFund isn't storing anything Stripe already stores on its side (card numbers, bank details) — CLAUDE.md already locks this for card data, so this is a verification pass on the actual Supabase schema and any new events/analytics tables added here, not a new rule
@@ -53,13 +53,33 @@ Grounded in: 11 occurrences across `worker/index.js` and `index.html` (from-addr
 
 ## 6. Stripe/Klarna: embedded vs. redirect
 
-Grounded in: `openStripeCheckout()` in `index.html` today does a full-page redirect (`window.location.href = data.url`) to a Stripe-hosted Checkout Session created server-side in `worker/index.js`.
+Was: `openStripeCheckout()` did a full-page redirect (`window.location.href = data.url`) to a Stripe-hosted Checkout Session. Now: the same session is created with `ui_mode: "embedded"` and mounted inline via Stripe.js's `initEmbeddedCheckout`, so the parent stays on playfundai.com for card/bank; Klarna still briefly redirects away and back (required by Klarna's own approval step) via a single `return_url`, handled the same way as before — status is always re-verified against the server/webhook, never trusted from the redirect.
 
-- [ ] Document today's flow precisely (done above) as the baseline to compare against
-- [ ] Evaluate Stripe's Embedded Checkout / Payment Element as the alternative that keeps the parent on playfundai.com instead of navigating to checkout.stripe.com
-- [ ] Confirm Klarna is actually available as a payment method inside that embedded flow for our account/region (verify directly in Stripe's dashboard/docs, don't assume)
-- [ ] Weigh the added frontend work (mounting Stripe.js, handling the payment lifecycle client-side) against staying with today's simpler redirect + webhook pattern
-- [ ] Decide before doing more checkout-UI work — this determines whether the old paynow/terms screens (removed during the recent merge) should come back in a new embedded form, or stay gone
+- [x] Documented today's flow as the baseline
+- [x] Built Embedded Checkout: `POST /athlete/:id/checkout` now returns `client_secret` instead of `url`; a new `GET /config` endpoint serves the Stripe publishable key; `index.html` loads Stripe.js and mounts checkout into a new `screen-embedded-checkout`
+- [x] "Pay in full" and "installments" stay on strictly separate Stripe Checkout Sessions with disjoint `payment_method_types` (`["card","us_bank_account"]` vs `["klarna"]`) — this was already true in the redirect version and carries over unchanged, so Klarna cannot appear on a "pay in full" session and card/bank cannot appear on the installment session
+- [ ] Confirm Klarna actually renders as a payment option inside the embedded flow once tested in Stripe test mode (self-verifying the first time we run it — not confirmed from docs alone)
+- [ ] Full test-mode run needed: pay in full (card + bank), set up installments (Klarna), a decline, a cancel — see setup steps below
+- [ ] Old paynow/terms screens stay gone — the new `screen-embedded-checkout` replaces what they would have done
+
+**Setup needed before this can be tested (manual, can't be done from here):**
+1. In the Cloudflare dashboard: playfund-worker → Settings → Variables and Secrets → add `STRIPE_PUBLISHABLE_KEY` with your Stripe **test-mode** publishable key (starts `pk_test_...`, found in the Stripe Dashboard under Developers → API keys). This is the public-facing key, safe to store as a plain variable rather than an encrypted secret.
+2. In the Supabase SQL editor, run:
+   ```sql
+   create table events (
+     id uuid primary key default gen_random_uuid(),
+     event_name text not null,
+     session_id text,
+     athlete_id uuid,
+     club_id uuid,
+     properties jsonb not null default '{}'::jsonb,
+     created_at timestamptz not null default now()
+   );
+   create index events_event_name_idx on events (event_name);
+   create index events_created_at_idx on events (created_at);
+   ```
+
+**Deployment gap found while testing this:** the live Worker had been running a 5-day-old manual deploy this whole time — merging to `main` on GitHub was never actually deploying anything, since no CI/CD was wired up. Connected Cloudflare Workers Builds to the GitHub repo to fix this going forward. Its "Root directory" setting defaulted to `/`, which is wrong (`wrangler.toml` lives in `worker/`, not the repo root) — changed it to `worker`. Still needs a first successful build to confirm the fix; watch the Deployments tab after this commit lands on `main`.
 
 ## 7. Club reporting (Jackson's track)
 

@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://js.stripe.com/v3/"></script>
 <style>
   /* ═══════════════════════════════════════════════════════════
      PLAYFUND — Design System
@@ -1558,6 +1559,16 @@
     <button class="btn btn-primary" onclick="offerParentAccount()">Done</button>
   </div>
 
+  <!-- SCREEN: embedded Stripe checkout -->
+  <div class="screen" id="screen-embedded-checkout">
+    <div class="eyebrow">Parent</div>
+    <h1 class="title" id="embeddedCheckoutTitle" style="margin-bottom:4px;">Complete payment</h1>
+    <p class="subtitle" style="margin-bottom:16px;">You're paying securely with Stripe, without leaving PlayFund.</p>
+    <div id="embeddedCheckoutError" style="display:none; background:var(--paper-dim); border:1.5px solid var(--unpaid); color:var(--unpaid); border-radius:10px; padding:12px 14px; margin-bottom:14px; font-size:13px;"></div>
+    <div id="embeddedCheckoutContainer" style="min-height:420px;"></div>
+    <button class="btn btn-secondary" onclick="cancelEmbeddedCheckout()" style="margin-top:16px;">Cancel</button>
+  </div>
+
   <!-- SCREEN: payment history (per athlete) -->
   <div class="screen" id="screen-payment-history">
     <div class="eyebrow">Parent</div>
@@ -2594,6 +2605,57 @@ var usStates = ["Virginia"];
 
   var state = { club: null, team: null, selectedState: null, history: [], athletes: [], activeAthleteId: null, combinedPlan: null, teamAdminSession: null, authToken: null, authType: null, adminCurrentTeam: null, adminCurrentClub: null };
 
+  // ---------- interaction tracking (screen views + checkout funnel) ----------
+  // Interaction-level only: which screen, which button, which payment method chosen.
+  // Never the content typed into a field — payment fields are Stripe's own iframe
+  // and never touch this page at all, and other fields aren't logged either.
+  var EVENTS_SESSION_KEY = 'pf_events_session_id';
+  function getEventsSessionId(){
+    try {
+      var id = sessionStorage.getItem(EVENTS_SESSION_KEY);
+      if(!id){
+        id = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        sessionStorage.setItem(EVENTS_SESSION_KEY, id);
+      }
+      return id;
+    } catch(e){ return null; }
+  }
+  function trackEvent(eventName, properties){
+    try {
+      var athlete = state.athletes && state.activeAthleteId
+        ? state.athletes.find(function(a){ return a.id === state.activeAthleteId; })
+        : null;
+      var payload = {
+        event_name: eventName,
+        session_id: getEventsSessionId(),
+        athlete_id: (athlete && athlete.supabaseId) || null,
+        club_id: (state.club && state.club.id) || (state.parentClub && state.parentClub.clubId) || null,
+        properties: properties || {}
+      };
+      fetch(WORKER_URL + '/events', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        keepalive: true
+      }).catch(function(){});
+    } catch(e){}
+  }
+
+  // ---------- Stripe.js (embedded checkout) ----------
+  var stripeClientPromise = null;
+  function getStripeClient(){
+    if(!stripeClientPromise){
+      stripeClientPromise = fetch(WORKER_URL + '/config')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          if(!data.stripePublishableKey) throw new Error('Stripe is not configured yet.');
+          return Stripe(data.stripePublishableKey);
+        });
+    }
+    return stripeClientPromise;
+  }
+  var activeEmbeddedCheckout = null;
+
   // Cache for clubs loaded from the Worker — avoids re-fetching on every screen
   var clubCache = {};
 
@@ -2711,10 +2773,13 @@ var usStates = ["Virginia"];
       } catch(e){}
     })();
 
-    // Returning from a real Stripe Checkout session (parent payment)
-    // Supports: ?checkout=success|cancel&athlete=UUID
+    // Returning from a real Stripe Checkout session (parent payment) — only fires
+    // for redirect-based methods like Klarna; card/bank complete inline via
+    // Embedded Checkout's onComplete callback instead (see openStripeCheckout).
+    // Supports: ?checkout=return&athlete=UUID&session_id=...
     // Payment status is verified against the server (webhook-driven), never trusted
-    // from the redirect alone.
+    // from the redirect alone — Embedded Checkout has one return_url, not separate
+    // success/cancel URLs, so we can't tell which happened just from the redirect.
     (function handleCheckoutReturn(){
       try {
         var params = new URLSearchParams(window.location.search);
@@ -2722,73 +2787,7 @@ var usStates = ["Virginia"];
         var athId    = params.get('athlete');
         if(!checkout || !athId) return;
         history.replaceState(null, '', window.location.pathname);
-
-        if(checkout !== 'success') {
-          // A cancel/back redirect doesn't by itself mean Klarna declined —
-          // it could just be the parent closing the tab. Check the server for
-          // a real recent payment_intent.payment_failed record (logged by the
-          // webhook) before treating this as a decline worth forking on.
-          setTimeout(async function(){
-            var localAthlete = loadAthletes().find(function(a){ return a.supabaseId === athId; });
-            if(!localAthlete){ showScreen('home', true); return; }
-            state.athletes = loadAthletes();
-            state.activeAthleteId = localAthlete.id;
-
-            var declined = false;
-            for(var i = 0; i < 3 && !declined; i++){
-              try {
-                var res  = await fetch(WORKER_URL + '/athlete/' + athId);
-                var data = await res.json();
-                var payments = data.payments || [];
-                declined = payments.some(function(p){
-                  if(p.status !== 'failed') return false;
-                  return (Date.now() - new Date(p.created_at).getTime()) < 5 * 60 * 1000;
-                });
-                if(declined) break;
-              } catch(e){}
-              if(!declined && i < 2) await new Promise(function(r){ setTimeout(r, 1200); });
-            }
-
-            if(declined){
-              await hydrateClubCache([localAthlete]);
-              showDeclineScreen();
-            } else {
-              showScreen('home', true);
-            }
-          }, 1100);
-          return;
-        }
-
-        setTimeout(async function(){
-          var localAthlete = loadAthletes().find(function(a){ return a.supabaseId === athId; });
-          if(!localAthlete){ showScreen('home', true); return; }
-          state.athletes = loadAthletes();
-          state.activeAthleteId = localAthlete.id;
-
-          var funded = false, method = 'full';
-          for(var i = 0; i < 5 && !funded; i++){
-            try {
-              var res  = await fetch(WORKER_URL + '/athlete/' + athId);
-              var data = await res.json();
-              var status = data.athlete && data.athlete.payment_status;
-              if(status && status !== 'unpaid'){
-                funded = true;
-                method = (status === 'bnpl_active' || status === 'bnpl_complete') ? 'bnpl' : 'full';
-                break;
-              }
-            } catch(e){}
-            if(!funded) await new Promise(function(r){ setTimeout(r, 1500); });
-          }
-
-          if(funded){
-            await hydrateClubCache([localAthlete]);
-            recordAthletePayment(method, state.selectedTermWeeks);
-            showScreen(method === 'bnpl' ? 'confirm-terms' : 'confirm-now', true);
-          } else {
-            alert("We're still confirming your payment with Stripe. This can take a minute, check back shortly and your registration will update automatically.");
-            showScreen('home', true);
-          }
-        }, 1100);
+        setTimeout(function(){ resolveAthleteAfterCheckout(athId); }, 1100);
       } catch(e){}
     })();
 
@@ -2893,6 +2892,7 @@ var usStates = ["Virginia"];
     document.getElementById('screen-' + name).classList.add('active');
     document.getElementById('backBtn').style.display = (name === 'home') ? 'none' : 'flex';
     window.scrollTo(0,0);
+    trackEvent('screen_view', { screen: name });
   }
   function goBack(){
     var prev = screenOrder.pop();
@@ -5467,14 +5467,91 @@ var usStates = ["Virginia"];
     showScreen('club-settings');
   }
 
-  // ---------- Stripe checkout ----------
-  // paymentType: 'full' | 'bnpl' (Klarna)
+  // ---------- Stripe checkout (embedded) ----------
+  // Shared by both return paths: a redirect-based method (Klarna) coming back via
+  // handleCheckoutReturn, and an inline method (card/bank) completing via
+  // Embedded Checkout's onComplete callback. Never trust the redirect/callback
+  // alone — always verify against the server (webhook-driven).
+  async function pollAthleteFunded(athId, tries, delayMs){
+    for(var i = 0; i < tries; i++){
+      try {
+        var res = await fetch(WORKER_URL + '/athlete/' + athId);
+        var data = await res.json();
+        var status = data.athlete && data.athlete.payment_status;
+        if(status && status !== 'unpaid'){
+          return (status === 'bnpl_active' || status === 'bnpl_complete') ? 'bnpl' : 'full';
+        }
+      } catch(e){}
+      if(i < tries - 1) await new Promise(function(r){ setTimeout(r, delayMs); });
+    }
+    return null;
+  }
+  async function pollAthleteDeclined(athId, tries, delayMs, windowMs){
+    for(var i = 0; i < tries; i++){
+      try {
+        var res = await fetch(WORKER_URL + '/athlete/' + athId);
+        var data = await res.json();
+        var payments = data.payments || [];
+        var declined = payments.some(function(p){
+          if(p.status !== 'failed') return false;
+          return (Date.now() - new Date(p.created_at).getTime()) < windowMs;
+        });
+        if(declined) return true;
+      } catch(e){}
+      if(i < tries - 1) await new Promise(function(r){ setTimeout(r, delayMs); });
+    }
+    return false;
+  }
+  async function resolveAthleteAfterCheckout(athId){
+    var localAthlete = loadAthletes().find(function(a){ return a.supabaseId === athId; });
+    if(!localAthlete){ showScreen('home', true); return; }
+    state.athletes = loadAthletes();
+    state.activeAthleteId = localAthlete.id;
+
+    var method = await pollAthleteFunded(athId, 5, 1500);
+    if(method){
+      await hydrateClubCache([localAthlete]);
+      recordAthletePayment(method, state.selectedTermWeeks);
+      trackEvent('checkout_confirmed', { payment_type: method });
+      showScreen(method === 'bnpl' ? 'confirm-terms' : 'confirm-now', true);
+      return;
+    }
+
+    // Not funded yet — a cancel/back doesn't by itself mean a decline, it could
+    // just be the parent closing the tab, so only fork to the decline screen on
+    // a real recent payment_intent.payment_failed record from the webhook.
+    var declined = await pollAthleteDeclined(athId, 3, 1200, 5 * 60 * 1000);
+    if(declined){
+      await hydrateClubCache([localAthlete]);
+      trackEvent('checkout_declined', {});
+      showDeclineScreen();
+      return;
+    }
+
+    trackEvent('checkout_unresolved', {});
+    alert("We're still confirming your payment with Stripe. This can take a minute, check back shortly and your registration will update automatically.");
+    showScreen('home', true);
+  }
+
+  // paymentType: 'full' | 'bnpl' (Klarna). These are kept on strictly separate
+  // Stripe Checkout Sessions server-side (see /athlete/:id/checkout) with disjoint
+  // payment_method_types, so Klarna can never appear as an option on a "pay in
+  // full" session and card/bank can never appear on the installment session.
   async function openStripeCheckout(paymentType){
     var athlete = state.athletes.find(function(a){ return a.id === state.activeAthleteId; });
     if(!athlete || !athlete.supabaseId){
       alert('This athlete isn\'t fully registered yet. Please try re-adding them.');
       return;
     }
+    trackEvent('payment_method_selected', { payment_type: paymentType });
+    var errEl = document.getElementById('embeddedCheckoutError');
+    var containerEl = document.getElementById('embeddedCheckoutContainer');
+    if(errEl){ errEl.style.display = 'none'; errEl.textContent = ''; }
+    if(containerEl) containerEl.innerHTML = '';
+    var titleEl = document.getElementById('embeddedCheckoutTitle');
+    if(titleEl) titleEl.textContent = paymentType === 'bnpl' ? 'Set up installments' : 'Pay in full';
+    showScreen('embedded-checkout');
+
     try {
       var res = await fetch(WORKER_URL + '/athlete/' + athlete.supabaseId + '/checkout', {
         method: 'POST',
@@ -5482,11 +5559,33 @@ var usStates = ["Virginia"];
         body: JSON.stringify({ payment_type: paymentType })
       });
       var data = await res.json();
-      if(!res.ok || !data.url){ alert(data.error || 'Unable to start checkout. Please try again.'); return; }
-      window.location.href = data.url;
+      if(!res.ok || !data.client_secret){
+        trackEvent('checkout_error', { payment_type: paymentType, stage: 'create_session' });
+        if(errEl){ errEl.textContent = data.error || 'Unable to start checkout. Please try again.'; errEl.style.display = 'block'; }
+        return;
+      }
+      var stripe = await getStripeClient();
+      if(activeEmbeddedCheckout){ try { activeEmbeddedCheckout.destroy(); } catch(e){} activeEmbeddedCheckout = null; }
+      var athleteSupabaseId = athlete.supabaseId;
+      activeEmbeddedCheckout = await stripe.initEmbeddedCheckout({
+        clientSecret: data.client_secret,
+        onComplete: function(){
+          trackEvent('checkout_completed', { payment_type: paymentType });
+          setTimeout(function(){ resolveAthleteAfterCheckout(athleteSupabaseId); }, 500);
+        }
+      });
+      activeEmbeddedCheckout.mount('#embeddedCheckoutContainer');
+      trackEvent('checkout_mounted', { payment_type: paymentType });
     } catch(e){
-      alert('Network error. Please try again.');
+      trackEvent('checkout_error', { payment_type: paymentType, stage: 'mount' });
+      if(errEl){ errEl.textContent = 'Network error. Please try again.'; errEl.style.display = 'block'; }
     }
+  }
+
+  function cancelEmbeddedCheckout(){
+    if(activeEmbeddedCheckout){ try { activeEmbeddedCheckout.destroy(); } catch(e){} activeEmbeddedCheckout = null; }
+    trackEvent('checkout_canceled', {});
+    goBack();
   }
 
   // Kept for backward compatibility with any remaining references

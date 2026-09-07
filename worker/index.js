@@ -635,6 +635,30 @@ var index_default = {
     if (method === "OPTIONS") {
       return new Response(null, { status: 204, headers: CORS });
     }
+    if (method === "GET" && path === "/config") {
+      return json({ stripePublishableKey: env.STRIPE_PUBLISHABLE_KEY || null });
+    }
+    if (method === "POST" && path === "/events") {
+      let body;
+      try {
+        body = await request.json();
+      } catch {
+        return err("Invalid JSON");
+      }
+      const { event_name, session_id, athlete_id, club_id, properties } = body;
+      if (!event_name || typeof event_name !== "string") return err("event_name required");
+      try {
+        await supabase(env, "POST", "/events", {
+          event_name,
+          session_id: session_id || null,
+          athlete_id: athlete_id || null,
+          club_id: club_id || null,
+          properties: properties && typeof properties === "object" ? properties : {}
+        });
+      } catch (e) {
+      }
+      return json({ success: true });
+    }
     if (method === "POST" && path === "/remind") {
       const authHeader = request.headers.get("Authorization") || "";
       const token = authHeader.replace("Bearer ", "").trim();
@@ -1613,9 +1637,13 @@ var index_default = {
       const feeBps = club.fee_bps != null ? club.fee_bps : 500;
       const applicationFeeAmount = Math.round(duesCents * feeBps / 1e4);
       const APP_URL = env.APP_URL || "https://jacksonwatkins30.github.io/playfund-app";
+      // 'full' and 'bnpl' are deliberately restricted to disjoint payment_method_types —
+      // Klarna must never appear as an option on a "pay in full" checkout, and card/bank
+      // must never appear on the installment checkout. Keep these two lists disjoint.
       const paymentMethodTypes = payment_type === "bnpl" ? ["klarna"] : ["card", "us_bank_account"];
       const sessionRes = await stripe(env, "POST", "/checkout/sessions", {
         mode: "payment",
+        ui_mode: "embedded",
         payment_method_types: paymentMethodTypes,
         line_items: [{
           price_data: {
@@ -1631,11 +1659,10 @@ var index_default = {
           metadata: { athlete_id: athleteId }
         },
         metadata: { athlete_id: athleteId },
-        success_url: `${APP_URL}?checkout=success&athlete=${athleteId}`,
-        cancel_url: `${APP_URL}?checkout=cancel&athlete=${athleteId}`
+        return_url: `${APP_URL}?checkout=return&athlete=${athleteId}&session_id={CHECKOUT_SESSION_ID}`
       });
       if (!sessionRes.ok) return err("Failed to create checkout session: " + JSON.stringify(sessionRes.data), 500);
-      return json({ url: sessionRes.data.url });
+      return json({ client_secret: sessionRes.data.client_secret });
     }
     if (method === "GET" && path === "/athletes/status") {
       const idsParam = url.searchParams.get("ids") || "";
