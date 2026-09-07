@@ -79,6 +79,8 @@ Was: `openStripeCheckout()` did a full-page redirect (`window.location.href = da
    create index events_created_at_idx on events (created_at);
    ```
 
+**Deployment gap found while testing this:** the live Worker had been running a 5-day-old manual deploy this whole time — merging to `main` on GitHub was never actually deploying anything, since no CI/CD was wired up. Connected Cloudflare Workers Builds to the GitHub repo to fix this going forward. Its "Root directory" setting defaulted to `/`, which is wrong (`wrangler.toml` lives in `worker/`, not the repo root) — changed it to `worker`. Still needs a first successful build to confirm the fix; watch the Deployments tab after this commit lands on `main`.
+
 ## 7. Club reporting (Jackson's track)
 
 Grounded in: the TeamSnap/SportsEngine reporting teardown already done, and the per-club payments CSV export already built (`GET /admin/clubs/:clubId/payments` in `worker/index.js`, rendered in `screen-admin-club-detail` in `index.html`).
